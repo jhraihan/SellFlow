@@ -1,4 +1,3 @@
-"""Infrastructure endpoints."""
 from django.db import connection
 from rest_framework import status
 from rest_framework.decorators import (
@@ -13,7 +12,6 @@ from rest_framework.response import Response
 @authentication_classes([])
 @permission_classes([])
 def health_check(request):
-    """Liveness probe. Reports DB reachability without leaking details."""
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")

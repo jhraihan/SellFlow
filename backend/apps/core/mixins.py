@@ -1,27 +1,7 @@
-"""
-Store-scoping for views.
-
-Every store-owned viewset inherits `StoreScopedMixin`. It resolves which
-store the caller is acting on, verifies membership, and filters the
-queryset — so a view cannot accidentally serve another tenant's rows by
-forgetting a filter.
-
-Store resolution order:
-  1. `X-Store-Id` header (a user may belong to several stores)
-  2. the caller's single active membership, if they have exactly one
-Anything else is ambiguous and is rejected.
-"""
 from apps.core.exceptions import StoreAccessDenied
 
 
 class StoreContextMixin:
-    """
-    Resolves `request.store` and `request.membership`.
-
-    Kept separate from queryset filtering so that views which are not
-    themselves store-scoped (the store list, invitation acceptance) can
-    still use the resolution logic.
-    """
 
     store_header = "HTTP_X_STORE_ID"
 
@@ -53,8 +33,6 @@ class StoreContextMixin:
                 ) from None
             membership = memberships.filter(store_id=store_id).first()
             if membership is None:
-                # Same response whether the store is missing or simply not
-                # theirs: never confirm the existence of another tenant.
                 raise StoreAccessDenied()
             return membership.store, membership
 
@@ -71,13 +49,6 @@ class StoreContextMixin:
 
 
 class StoreScopedMixin(StoreContextMixin):
-    """
-    Filters the queryset to `request.store` and stamps it on create.
-
-    Subclasses define `queryset` as usual; this narrows it. If no store
-    resolved, the queryset is empty rather than unfiltered — failing
-    closed is the point.
-    """
 
     def get_queryset(self):
         queryset = super().get_queryset()

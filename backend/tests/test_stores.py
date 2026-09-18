@@ -1,4 +1,3 @@
-"""Store creation, settings, delivery charges and staff invitations."""
 from datetime import timedelta
 from decimal import Decimal
 
@@ -22,7 +21,6 @@ ACCEPT = "/api/v1/stores/invitations/accept/"
 
 class TestStoreCreation:
     def test_creates_store_membership_and_settings(self, make_user, auth):
-        """One call must leave the store immediately usable (PRD FR-1.3)."""
         user = make_user()
         response = auth(user).post(
             STORES,
@@ -80,7 +78,6 @@ class TestStoreCreation:
 
 class TestStoreSettings:
     def test_defaults_match_bd_market(self, make_user, make_store):
-        """Sensible Bangladeshi defaults so onboarding needs no tuning."""
         store = make_store(make_user())
         settings = store.settings
 
@@ -144,7 +141,6 @@ class TestStoreSettings:
 
 
 class TestDeliveryChargeResolution:
-    """Charge resolution drives every order total, so it is pinned down."""
 
     def test_dhaka_uses_inside_rate(self, make_user, make_store):
         store = make_store(make_user())
@@ -379,7 +375,6 @@ class TestStaffManagement:
             format="json",
         )
 
-        # 409: the request is well-formed but conflicts with store state.
         assert response.status_code == 409
         assert response.data["error"]["code"] == "OWNER_ROLE_IMMUTABLE"
 
@@ -397,7 +392,6 @@ class TestStaffManagement:
     def test_removing_staff_deactivates_membership(
         self, make_user, make_store, make_member, auth
     ):
-        """Soft-deactivate so historical attribution survives."""
         owner = make_user(email="owner@example.com")
         store = make_store(owner)
         staff = make_user(email="staff@example.com")
@@ -421,8 +415,6 @@ class TestSoftDelete:
         response = auth(owner, store=store).delete(f"{STORES}{store.id}/")
 
         assert response.status_code == 204
-        # refresh_from_db uses the default manager, which now hides deleted
-        # rows, so re-read through all_objects.
         reloaded = Store.all_objects.get(id=store.id)
         assert reloaded.deleted_at is not None
 

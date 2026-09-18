@@ -1,10 +1,3 @@
-"""
-Tenancy: Store, StoreMembership (roles) and StoreSettings.
-
-A Store is the tenant boundary. Every business record hangs off one,
-and a user's access is entirely determined by their StoreMembership
-(PRD §6, §9.1).
-"""
 from decimal import Decimal
 
 from django.conf import settings
@@ -16,10 +9,6 @@ from apps.core.models import SoftDeleteManager, SoftDeleteModel, TimeStampedMode
 
 
 class StoreRole(models.TextChoices):
-    """
-    Roles from PRD §6. Ordered most- to least-privileged; `rank` below
-    relies on this ordering for "at least this role" checks.
-    """
 
     OWNER = "owner", "Owner"
     MANAGER = "manager", "Manager"
@@ -28,9 +17,6 @@ class StoreRole(models.TextChoices):
     ACCOUNTANT = "accountant", "Accountant"
 
 
-# Lower number == more privilege. Accountant and the staff roles are
-# siblings rather than a strict ladder, so permission checks are done by
-# explicit capability (see apps.stores.permissions), not by rank alone.
 ROLE_RANK = {
     StoreRole.OWNER: 0,
     StoreRole.MANAGER: 1,
@@ -51,7 +37,6 @@ class BusinessType(models.TextChoices):
 
 
 class Store(SoftDeleteModel, TimeStampedModel):
-    """A seller's business. The tenancy boundary for all other tables."""
 
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=140, unique=True, db_index=True)
@@ -76,16 +61,11 @@ class Store(SoftDeleteModel, TimeStampedModel):
     facebook_page_url = models.URLField(blank=True)
     instagram_handle = models.CharField(max_length=60, blank=True)
 
-    # Order numbering (PRD FR-2.3). `order_sequence` is bumped atomically
-    # by the order service; never derive a number from COUNT(*).
     order_prefix = models.CharField(max_length=8, default="ORD")
     order_sequence = models.PositiveIntegerField(default=1000)
 
     is_active = models.BooleanField(default=True)
 
-    # `objects` is declared first so it stays Django's _default_manager:
-    # admin, related lookups and get_object_or_404 must not see
-    # soft-deleted stores. `all_objects` is the explicit escape hatch.
     objects = SoftDeleteManager()
     all_objects = models.Manager()
 
@@ -114,14 +94,7 @@ class Store(SoftDeleteModel, TimeStampedModel):
         return self.memberships.select_related("user").filter(is_active=True)
 
 
-
 class StoreMembership(TimeStampedModel):
-    """
-    Join of User <-> Store carrying the role.
-
-    This is the authorization source of truth: a user with no active
-    membership for a store can see none of its data.
-    """
 
     store = models.ForeignKey(
         Store, on_delete=models.CASCADE, related_name="memberships"
@@ -167,18 +140,11 @@ class StoreMembership(TimeStampedModel):
 
 
 class StoreSettings(TimeStampedModel):
-    """
-    Per-store operational configuration (PRD FR-2.2, FR-2.4, FR-2.7).
-
-    Delivery charges live here because they are the seller's own pricing
-    to the customer, distinct from what a courier charges the seller.
-    """
 
     store = models.OneToOneField(
         Store, on_delete=models.CASCADE, related_name="settings"
     )
 
-    # ------------------------------------------------ delivery charges
     delivery_charge_inside_dhaka = models.DecimalField(
         max_digits=8, decimal_places=2, default=Decimal("60.00"),
         validators=[MinValueValidator(Decimal("0"))],
@@ -187,7 +153,6 @@ class StoreSettings(TimeStampedModel):
         max_digits=8, decimal_places=2, default=Decimal("120.00"),
         validators=[MinValueValidator(Decimal("0"))],
     )
-    # {"Chattogram": "100.00", ...} - overrides the inside/outside default.
     district_charge_overrides = models.JSONField(default=dict, blank=True)
 
     free_delivery_threshold = models.DecimalField(
@@ -196,26 +161,21 @@ class StoreSettings(TimeStampedModel):
         help_text="Order subtotal at or above which delivery is free. Blank = never.",
     )
 
-    # ------------------------------------------------ invoice
     invoice_header = models.CharField(max_length=200, blank=True)
     invoice_footer_note = models.TextField(blank=True)
     invoice_terms = models.TextField(blank=True)
     show_discount_on_invoice = models.BooleanField(default=True)
 
-    # ------------------------------------------------ notifications
     sms_on_confirmed = models.BooleanField(default=False)
     sms_on_shipped = models.BooleanField(default=False)
     sms_on_delivered = models.BooleanField(default=False)
 
-    # ------------------------------------------------ fraud thresholds
-    # PRD FR-2.7: auto-flag risky customers.
     fraud_return_count_threshold = models.PositiveSmallIntegerField(default=3)
     fraud_return_rate_threshold = models.DecimalField(
         max_digits=5, decimal_places=2, default=Decimal("40.00"),
         help_text="Percent. Return rate at or above this flags the customer.",
     )
 
-    # Days after delivery with no settlement before COD is 'overdue'.
     cod_overdue_days = models.PositiveSmallIntegerField(default=7)
 
     class Meta:
@@ -226,11 +186,6 @@ class StoreSettings(TimeStampedModel):
         return f"Settings for {self.store}"
 
     def delivery_charge_for(self, district):
-        """
-        Resolve the delivery charge for a district.
-
-        Order of precedence: explicit override -> inside/outside Dhaka.
-        """
         if district:
             override = self.district_charge_overrides.get(district)
             if override is not None:
@@ -241,10 +196,6 @@ class StoreSettings(TimeStampedModel):
 
 
 class StoreInvitation(TimeStampedModel):
-    """
-    Pending staff invitation (PRD FR-1.5). Expires in 72h; the invited
-    person sets their own password when accepting.
-    """
 
     store = models.ForeignKey(
         Store, on_delete=models.CASCADE, related_name="invitations"

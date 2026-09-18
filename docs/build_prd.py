@@ -1,4 +1,3 @@
-"""Render docs/PRD.md into a designed PDF using ReportLab platypus."""
 import re
 from pathlib import Path
 
@@ -17,13 +16,12 @@ HERE = Path(__file__).parent
 SRC = HERE / "PRD.md"
 OUT = HERE / "ShopFlow_BD_PRD.pdf"
 
-# ---------------------------------------------------------------- palette
 INK      = colors.HexColor("#14181F")
 BODY     = colors.HexColor("#2B313B")
 MUTED    = colors.HexColor("#6B7280")
-BRAND    = colors.HexColor("#0F766E")   # deep teal
+BRAND    = colors.HexColor("#0F766E")
 BRAND_LT = colors.HexColor("#E6F2F1")
-ACCENT   = colors.HexColor("#B45309")   # amber for emphasis
+ACCENT   = colors.HexColor("#B45309")
 RULE     = colors.HexColor("#DCE0E6")
 ZEBRA    = colors.HexColor("#F7F8FA")
 CODE_BG  = colors.HexColor("#F4F5F7")
@@ -34,7 +32,6 @@ TM = 20 * mm
 BM = 18 * mm
 CONTENT_W = PAGE_W - LM - RM
 
-# ---------------------------------------------------------------- styles
 def S(name, **kw):
     kw.setdefault("fontName", "Helvetica")
     kw.setdefault("textColor", BODY)
@@ -79,7 +76,6 @@ ST = {
 CODE = ParagraphStyle("code", fontName="Courier", fontSize=7.5, leading=10.2,
                       textColor=INK, leftIndent=6)
 
-# ---------------------------------------------------------------- inline md
 def inline(t):
     t = (t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
           .replace("৳", "Tk "))
@@ -94,7 +90,6 @@ def P(text, style="body"):
 def cell(text, style="cell"):
     return Paragraph(inline(text), ST[style])
 
-# ---------------------------------------------------------------- tables
 def base_table_style(ncols, header=True, zebra_from=1):
     cmds = [
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
@@ -146,7 +141,6 @@ def pill(text, bg):
     ]))
     return t
 
-# ---------------------------------------------------------------- big static tables
 PERM_HEAD = ["Capability", "Owner", "Manager", "Order", "Deliv.", "Acct."]
 PERM_ROWS = [
     ("View orders",               "Y", "Y", "Y", "Y", "Y"),
@@ -271,14 +265,12 @@ EP_GROUPS = [
     ]),
 ]
 
-# ---------------------------------------------------------------- parser
 def parse(md):
-    """Yield flowables from the PRD source."""
     out = []
     lines = md.split("\n")
     i = 0
     meta = []
-    buf = []          # pending typed rows: (tag, parts)
+    buf = []
     bullets = []
 
     def flush_bullets():
@@ -304,7 +296,6 @@ def parse(md):
         ln = lines[i]
         s = ln.strip()
 
-        # fenced code
         if s.startswith("```"):
             flush_bullets(); flush_typed()
             i += 1
@@ -378,8 +369,6 @@ def parse(md):
 
 
 def _measure(flow, avail):
-    """Height of a flowable before a canvas exists. KeepTogether.wrap()
-    needs a canvas, so measure its contents instead."""
     if isinstance(flow, KeepTogether):
         total = 0
         for c in flow._content:
@@ -392,8 +381,6 @@ def _measure(flow, avail):
 
 
 def bind_headings(flows):
-    """Reserve enough room after a heading that it can never be stranded
-    alone at the foot of a page, measuring the block that follows."""
     AVAIL = PAGE_H - TM - BM
     res = []
     for i, f in enumerate(flows):
@@ -404,17 +391,13 @@ def bind_headings(flows):
             nxt = flows[i + 1]
             h = _measure(nxt, AVAIL)
             head_h = 26 * mm if isinstance(f, SectionHead) else 18 * mm
-            # an atomic block moves wholesale; a splittable one needs only
-            # a meaningful first chunk to sit under the heading
             chunk = h if isinstance(nxt, KeepTogether) else min(h, 45 * mm)
             res.append(CondPageBreak(min(head_h + chunk, AVAIL * 0.85)))
         res.append(f)
     return res
 
 
-# ---------------------------------------------------------------- renderers
 class SectionHead(Paragraph):
-    """H1 that draws a brand rule above itself and asks for space."""
     def __init__(self, text):
         super().__init__(inline(text), ST["h1"])
 
@@ -484,7 +467,6 @@ def two_col(rows, w1, styles=("cellb", "cell"), headers=None, small=False):
     return mk_table(headers, data, [w1, CONTENT_W - w1], small=small)
 
 def render_typed(tag, rows):
-    """Turn a run of TAG|... lines into the right visual block."""
     sp = Spacer(1, 9)
 
     if tag == "PAIN":
@@ -499,7 +481,7 @@ def render_typed(tag, rows):
                                      headers=["Not in v1", "Rationale"]), sp])
     if tag == "METRIC":
         data = [(cell(r[0], "cellb"), cell(r[1]), cell(r[2], "cellb"))
-                for r in rows]  # METRIC: area|metric|target
+                for r in rows]
         t = mk_table(["Area", "Metric", "Target"], data,
                      [26 * mm, CONTENT_W - 26 * mm - 30 * mm, 30 * mm])
         return KeepTogether([t, sp])
@@ -570,10 +552,8 @@ def render_typed(tag, rows):
     if tag == "GLOSSARY":
         return two_col([(r[0], r[1]) for r in rows], 34 * mm,
                        headers=["Term", "Definition"])
-    # fallback
     return two_col([(r[0], " — ".join(r[1:])) for r in rows], 40 * mm)
 
-# ---------------------------------------------------------------- cover / toc
 def cover(meta, title, subtitle):
     f = []
     f.append(Spacer(1, 42 * mm))
@@ -635,7 +615,6 @@ def toc():
     f.append(PageBreak())
     return f
 
-# ---------------------------------------------------------------- doc template
 class PRDDoc(BaseDocTemplate):
     def __init__(self, path, **kw):
         super().__init__(path, pagesize=A4, leftMargin=LM, rightMargin=RM,
@@ -670,7 +649,6 @@ class PRDDoc(BaseDocTemplate):
 
     def main_page(self, canv, doc):
         canv.saveState()
-        # header
         canv.setFillColor(MUTED)
         canv.setFont("Helvetica", 7.6)
         canv.drawString(LM, PAGE_H - 13 * mm, "ShopFlow BD  ·  PRD v1.0")
@@ -679,7 +657,6 @@ class PRDDoc(BaseDocTemplate):
         canv.setStrokeColor(RULE)
         canv.setLineWidth(0.5)
         canv.line(LM, PAGE_H - 15 * mm, PAGE_W - RM, PAGE_H - 15 * mm)
-        # footer
         canv.line(LM, BM - 5 * mm, PAGE_W - RM, BM - 5 * mm)
         canv.setFont("Helvetica", 7.6)
         canv.drawString(LM, BM - 9.5 * mm, "Confidential draft")
@@ -694,7 +671,6 @@ def main():
     body_lines = md.split("\n")
     title = body_lines[0].replace("# ", "").strip()
     subtitle = next(l for l in body_lines if l.startswith("## ")).replace("## ", "")
-    # strip the title/subtitle lines from the parsed body
     md_body = "\n".join(l for l in body_lines
                         if not (l.startswith("# Product Requirements")
                                 or l.startswith("## ShopFlow BD")))

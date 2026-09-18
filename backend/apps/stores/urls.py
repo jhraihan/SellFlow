@@ -1,4 +1,3 @@
-"""Store, staff and invitation routes (PRD §10.2)."""
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -16,7 +15,6 @@ router.register("invitations", InvitationViewSet, basename="invitation")
 router.register("", StoreViewSet, basename="store")
 
 urlpatterns = [
-    # Concrete paths must precede the router's catch-all "" registration.
     path(
         "invitations/accept/",
         AcceptInvitationView.as_view(),

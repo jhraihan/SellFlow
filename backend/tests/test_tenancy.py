@@ -1,10 +1,3 @@
-"""
-Cross-tenant isolation.
-
-PRD §14 rates multi-tenant data leakage as a Critical risk, so these
-tests exist to fail loudly the moment isolation regresses. They are the
-reason the tenancy mixin is structural rather than per-view.
-"""
 import pytest
 
 from apps.stores.models import StoreMembership, StoreRole
@@ -33,7 +26,6 @@ class TestStoreListScoping:
         client = auth(two_stores["alice"])
         response = client.get(f"/api/v1/stores/{two_stores['store_b'].id}/")
 
-        # 404 rather than 403: never confirm that another tenant's store exists.
         assert response.status_code == 404
 
     def test_cannot_update_another_users_store(self, two_stores, auth):
@@ -59,7 +51,6 @@ class TestStoreListScoping:
 
 class TestStoreHeaderResolution:
     def test_forged_store_header_is_rejected(self, two_stores, auth):
-        """Alice pointing X-Store-Id at Bob's store must not resolve."""
         client = auth(two_stores["alice"], store=two_stores["store_b"])
         response = client.get("/api/v1/stores/my-capabilities/")
 
@@ -97,7 +88,6 @@ class TestStoreHeaderResolution:
     def test_multiple_memberships_require_explicit_header(
         self, two_stores, make_member, auth
     ):
-        """Ambiguity must fail rather than silently pick a store."""
         make_member(
             two_stores["store_b"], two_stores["alice"], StoreRole.ORDER_STAFF
         )
@@ -131,7 +121,7 @@ class TestStoreHeaderResolution:
         assert response.status_code == 403
 
     def test_soft_deleted_store_is_not_resolvable(self, two_stores, auth):
-        two_stores["store_a"].delete()  # soft delete
+        two_stores["store_a"].delete()
 
         client = auth(two_stores["alice"], store=two_stores["store_a"])
         response = client.get("/api/v1/stores/my-capabilities/")
@@ -175,7 +165,6 @@ class TestStaffScoping:
 
 
 class TestQuerysetLevelScoping:
-    """Isolation at the ORM layer, independent of any view."""
 
     def test_memberships_are_partitioned_by_store(self, two_stores):
         a_members = StoreMembership.objects.filter(store=two_stores["store_a"])
@@ -187,16 +176,9 @@ class TestQuerysetLevelScoping:
         assert b_members.first().user == two_stores["bob"]
 
     def test_scoped_mixin_fails_closed_without_a_store(self, rf, two_stores):
-        """
-        An unresolved store must yield no rows, never an unfiltered queryset.
-
-        Driven through the real StoreScopedMixin so a regression there is
-        caught here rather than by a hand-rolled stand-in.
-        """
         from apps.core.mixins import StoreScopedMixin
 
         class UnscopedParent:
-            """Stands in for the ModelViewSet that returns every row."""
 
             def get_queryset(self):
                 return StoreMembership.objects.all()
@@ -205,11 +187,9 @@ class TestQuerysetLevelScoping:
         view = view_cls()
         view.request = rf.get("/")
 
-        # No store resolved -> nothing, even though the parent returns all.
         view.request.store = None
         assert view.get_queryset().count() == 0
 
-        # Store resolved -> only that store's rows.
         view.request.store = two_stores["store_a"]
         rows = view.get_queryset()
         assert rows.count() == 1

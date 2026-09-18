@@ -1,10 +1,3 @@
-"""
-Platform accounts.
-
-`User` holds authentication only — no business data. A user reaches
-store data through `StoreMembership` (see apps.stores), which is the
-single source of truth for authorization (PRD §9.1).
-"""
 import re
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -18,13 +11,6 @@ BD_PHONE_RE = re.compile(r"^(?:\+?880|0)?1[3-9]\d{8}$")
 
 
 def normalise_bd_phone(raw):
-    """
-    Normalise a Bangladeshi mobile number to +8801XXXXXXXXX.
-
-    Sellers type numbers every possible way (01712345678, 8801712345678,
-    +880 1712-345678). Storing one canonical form is what makes customer
-    lookup-by-phone reliable (PRD FR-4.1, FR-4.2).
-    """
     if not raw:
         return ""
     digits = re.sub(r"[\s\-()]", "", str(raw))
@@ -75,7 +61,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
-    """Authentication account. Email is the login identifier."""
 
     email = models.EmailField(unique=True, db_index=True)
     full_name = models.CharField(max_length=150)
@@ -87,8 +72,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     )
 
     is_active = models.BooleanField(default=True)
-    # `is_staff` here means Django-admin access (platform staff), not
-    # store staff — store roles live on StoreMembership.
     is_staff = models.BooleanField(default=False)
 
     email_verified_at = models.DateTimeField(null=True, blank=True)

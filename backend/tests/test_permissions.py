@@ -1,9 +1,3 @@
-"""
-Role capability matrix (PRD §6.1).
-
-The matrix is the contract between the PRD and the code, so it is
-asserted row by row rather than spot-checked.
-"""
 import pytest
 
 from apps.stores.models import StoreRole
@@ -17,7 +11,6 @@ ORDER = StoreRole.ORDER_STAFF
 DELIVERY = StoreRole.DELIVERY_STAFF
 ACCOUNTANT = StoreRole.ACCOUNTANT
 
-#: (capability, roles that hold it) — transcribed from the PRD table.
 MATRIX = [
     (Cap.VIEW_ORDERS, {OWNER, MANAGER, ORDER, DELIVERY, ACCOUNTANT}),
     (Cap.MANAGE_ORDERS, {OWNER, MANAGER, ORDER}),
@@ -59,10 +52,6 @@ class TestCapabilityMatrix:
             assert role_has(OWNER, capability)
 
     def test_order_staff_cannot_see_cost_or_profit(self):
-        """
-        The PRD is explicit that order staff must not see margin data
-        (persona: Sadia). This is a privacy boundary, not a nicety.
-        """
         assert not role_has(ORDER, Cap.VIEW_COST_PRICE)
         assert not role_has(ORDER, Cap.VIEW_ANALYTICS)
 
@@ -87,7 +76,6 @@ class TestCapabilityMatrix:
 
 
 class TestStaffEndpointEnforcement:
-    """The matrix is enforced over HTTP, not only in the helper functions."""
 
     @pytest.mark.parametrize(
         "role,expected",

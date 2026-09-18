@@ -1,4 +1,3 @@
-"""Shared fixtures."""
 import pytest
 from django.core.cache import cache
 from rest_framework.test import APIClient
@@ -9,13 +8,6 @@ from apps.stores.models import Store, StoreMembership, StoreRole, StoreSettings
 
 @pytest.fixture(autouse=True)
 def reset_throttles():
-    """
-    Clear DRF throttle counters between tests.
-
-    Throttle state lives in the cache and is not part of the database
-    rollback, so without this a test's rate-limit consumption leaks into
-    later tests and they fail with 429 depending on run order.
-    """
     cache.clear()
     yield
     cache.clear()
@@ -57,7 +49,6 @@ def make_member(db):
 
 @pytest.fixture
 def auth(api):
-    """Authenticate the client as `user`, optionally scoped to `store`."""
 
     def _auth(user, store=None):
         from rest_framework_simplejwt.tokens import RefreshToken
@@ -74,12 +65,6 @@ def auth(api):
 
 @pytest.fixture
 def two_stores(make_user, make_store):
-    """
-    Two unrelated sellers with their own stores.
-
-    The backbone of the isolation tests: anything one can see of the
-    other's data is a tenancy bug.
-    """
     alice = make_user(email="alice@example.com", full_name="Alice")
     bob = make_user(email="bob@example.com", full_name="Bob")
     store_a = make_store(alice, name="Alice Fashion")

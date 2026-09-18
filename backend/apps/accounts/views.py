@@ -1,4 +1,3 @@
-"""Authentication endpoints (PRD §10.2 'Authentication')."""
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status
@@ -27,7 +26,6 @@ def _client_ip(request):
 
 @extend_schema(tags=["auth"])
 class RegisterView(generics.CreateAPIView):
-    """POST /api/v1/auth/register/ — create an account."""
 
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
@@ -38,8 +36,6 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Issue tokens immediately so the client can continue into the
-        # store-creation wizard without a second login round trip.
         refresh = RefreshToken.for_user(user)
         return Response(
             {
@@ -54,7 +50,6 @@ class RegisterView(generics.CreateAPIView):
 
 @extend_schema(tags=["auth"])
 class LoginView(TokenObtainPairView):
-    """POST /api/v1/auth/login/ — obtain access + refresh tokens."""
 
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
@@ -72,12 +67,6 @@ class LoginView(TokenObtainPairView):
 
 @extend_schema(tags=["auth"])
 class LogoutView(APIView):
-    """
-    POST /api/v1/auth/logout/ — blacklist the refresh token.
-
-    The access token stays valid until it expires (15 min); blacklisting
-    the refresh token is what stops the session being renewed.
-    """
 
     permission_classes = [IsAuthenticated]
 
@@ -95,15 +84,12 @@ class LogoutView(APIView):
         try:
             RefreshToken(token).blacklist()
         except TokenError:
-            # Already blacklisted or malformed — the desired end state
-            # (this token is unusable) holds either way.
             pass
         return Response(status=status.HTTP_205_RESET_CONTENT)
 
 
 @extend_schema(tags=["auth"])
 class MeView(generics.RetrieveUpdateAPIView):
-    """GET/PATCH /api/v1/auth/me/ — current user and their memberships."""
 
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
@@ -127,7 +113,6 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 @extend_schema(tags=["auth"])
 class ChangePasswordView(APIView):
-    """POST /api/v1/auth/password/change/"""
 
     permission_classes = [IsAuthenticated]
     throttle_scope = "auth"

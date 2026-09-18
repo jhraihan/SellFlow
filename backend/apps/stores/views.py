@@ -1,4 +1,3 @@
-"""Store, settings, staff and invitation endpoints (PRD §10.2 'Stores & staff')."""
 import secrets
 from datetime import timedelta
 
@@ -34,12 +33,6 @@ INVITE_TTL_HOURS = 72
 
 @extend_schema(tags=["stores"])
 class StoreViewSet(viewsets.ModelViewSet):
-    """
-    /api/v1/stores/
-
-    Not StoreScopedMixin: this is how a user discovers their stores, so
-    it is scoped by membership rather than by a single resolved store.
-    """
 
     serializer_class = StoreSerializer
     permission_classes = [IsAuthenticated]
@@ -86,12 +79,11 @@ class StoreViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         store = self.get_object()
         self._require_role(store, StoreRole.OWNER)
-        store.delete()  # soft delete
+        store.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["get", "patch"], url_path="settings")
     def store_settings(self, request, pk=None):
-        """GET/PATCH /api/v1/stores/{id}/settings/"""
         store = self.get_object()
         settings_obj, _ = StoreSettings.objects.get_or_create(store=store)
 
@@ -109,11 +101,6 @@ class StoreViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=["staff"])
 class StaffViewSet(StoreContextMixin, viewsets.ModelViewSet):
-    """
-    /api/v1/stores/staff/ — manage members of the resolved store.
-
-    Store comes from the X-Store-Id header via StoreContextMixin.
-    """
 
     serializer_class = StaffSerializer
     permission_classes = [IsAuthenticated, IsStoreMember, HasStoreCapability]
@@ -160,7 +147,6 @@ class StaffViewSet(StoreContextMixin, viewsets.ModelViewSet):
 
 @extend_schema(tags=["staff"])
 class InvitationViewSet(StoreContextMixin, viewsets.ModelViewSet):
-    """/api/v1/stores/invitations/ — invite staff (owner only)."""
 
     serializer_class = InvitationSerializer
     permission_classes = [IsAuthenticated, IsStoreMember, IsStoreOwner]
@@ -205,7 +191,6 @@ class InvitationViewSet(StoreContextMixin, viewsets.ModelViewSet):
         )
 
     def perform_destroy(self, instance):
-        """Revoking a pending invite expires it rather than deleting history."""
         if instance.is_accepted:
             raise APIError(
                 "This invitation has already been accepted.",
@@ -235,11 +220,6 @@ class InvitationViewSet(StoreContextMixin, viewsets.ModelViewSet):
 
 @extend_schema(tags=["staff"])
 class AcceptInvitationView(APIView):
-    """
-    POST /api/v1/stores/invitations/accept/ — accept by token.
-
-    Public: the invitee may not have an account yet.
-    """
 
     permission_classes = [AllowAny]
     throttle_scope = "auth"
@@ -258,7 +238,7 @@ class AcceptInvitationView(APIView):
                 email=invitation.email,
                 password=serializer.validated_data["password"],
                 full_name=serializer.validated_data["full_name"],
-                email_verified_at=timezone.now(),  # the invite proves the address
+                email_verified_at=timezone.now(),
             )
             created = True
 
@@ -297,11 +277,6 @@ class AcceptInvitationView(APIView):
 
 @extend_schema(tags=["stores"])
 class MyCapabilitiesView(StoreContextMixin, generics.GenericAPIView):
-    """
-    GET /api/v1/stores/my-capabilities/
-
-    Lets the frontend gate UI without hardcoding the role matrix.
-    """
 
     permission_classes = [IsAuthenticated, IsStoreMember]
 

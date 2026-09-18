@@ -1,4 +1,3 @@
-"""Registration, login, token lifecycle and profile (PRD FR-1.1, FR-1.2)."""
 import pytest
 
 from apps.accounts.models import User, normalise_bd_phone
@@ -27,10 +26,6 @@ def _payload(**overrides):
 
 
 class TestPhoneNormalisation:
-    """
-    Every local phone format must collapse to one canonical value, or
-    customer lookup-by-phone silently creates duplicates (PRD FR-4.1).
-    """
 
     @pytest.mark.parametrize(
         "raw",
@@ -66,7 +61,6 @@ class TestRegistration:
         assert "access" in response.data
         assert "refresh" in response.data
         assert response.data["user"]["email"] == "new@example.com"
-        # A brand-new account has no store yet; the wizard comes next.
         assert response.data["stores"] == []
 
     def test_phone_is_stored_normalised(self, api):
@@ -137,7 +131,6 @@ class TestLogin:
         store_row = response.data["stores"][0]
         assert store_row["store_name"] == "My Shop"
         assert store_row["role"] == "owner"
-        # Capabilities travel with the membership so the UI can gate itself.
         assert "manage_staff" in store_row["capabilities"]
 
     def test_wrong_password_rejected(self, api, make_user):
@@ -195,7 +188,6 @@ class TestTokenLifecycle:
         client = auth(user)
         assert client.post(LOGOUT, {"refresh": refresh}, format="json").status_code == 205
 
-        # The blacklisted token must no longer be exchangeable.
         api.credentials()
         assert api.post(REFRESH, {"refresh": refresh}, format="json").status_code == 401
 

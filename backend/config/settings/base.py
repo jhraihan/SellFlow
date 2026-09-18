@@ -1,27 +1,16 @@
-"""
-Settings shared by every environment.
-
-Anything secret or environment-specific is read from the environment via
-`decouple.config`, never hardcoded. See `.env.example` for the full list.
-"""
 from datetime import timedelta
 from pathlib import Path
 
 from decouple import Csv, config
 
-# backend/config/settings/base.py -> backend/
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# ---------------------------------------------------------------- security
 SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
-# Key used to encrypt courier credentials at rest (PRD FR-2.5).
-# Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 FIELD_ENCRYPTION_KEY = config("FIELD_ENCRYPTION_KEY", default="")
 
-# ---------------------------------------------------------------- apps
 DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -47,7 +36,6 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-# ---------------------------------------------------------------- middleware
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -79,7 +67,6 @@ TEMPLATES = [
     },
 ]
 
-# ---------------------------------------------------------------- auth
 AUTH_USER_MODEL = "accounts.User"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -90,8 +77,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ---------------------------------------------------------------- i18n
-# Bangladesh-first: Asia/Dhaka and BDT are the defaults (PRD FR-2.1).
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Dhaka"
 USE_I18N = True
@@ -99,7 +84,6 @@ USE_TZ = True
 
 DEFAULT_CURRENCY = "BDT"
 
-# ---------------------------------------------------------------- static
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
@@ -107,7 +91,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ---------------------------------------------------------------- DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -128,14 +111,12 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.ScopedRateThrottle",
     ),
     "DEFAULT_THROTTLE_RATES": {
-        "auth": "20/hour",          # login / register / password reset
-        "public_track": "60/hour",  # public order tracking (PRD FR-12.2)
-        "public_order": "20/hour",  # public order form
+        "auth": "20/hour",
+        "public_track": "60/hour",
+        "public_order": "20/hour",
     },
 }
 
-# ---------------------------------------------------------------- JWT
-# Short access token, rotating refresh with blacklist on logout (PRD FR-1.2).
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -147,7 +128,6 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
 }
 
-# ---------------------------------------------------------------- API docs
 SPECTACULAR_SETTINGS = {
     "TITLE": "ShopFlow BD API",
     "DESCRIPTION": "F-commerce order & delivery management platform for Bangladesh.",
@@ -157,7 +137,6 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v1",
 }
 
-# ---------------------------------------------------------------- logging
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

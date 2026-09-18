@@ -1,4 +1,3 @@
-"""Root URL configuration."""
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -15,14 +14,11 @@ API = "api/v1/"
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # health probe for Render
     path("healthz/", health_check, name="health-check"),
 
-    # api
     path(f"{API}auth/", include("apps.accounts.urls")),
     path(f"{API}stores/", include("apps.stores.urls")),
 
-    # docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",

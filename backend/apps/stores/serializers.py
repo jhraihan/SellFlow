@@ -1,4 +1,3 @@
-"""Serializers for stores, memberships, settings and invitations."""
 from django.db import transaction
 from rest_framework import serializers
 
@@ -14,7 +13,6 @@ class StoreSettingsSerializer(serializers.ModelSerializer):
         exclude = ["id", "store", "created_at", "updated_at"]
 
     def validate_district_charge_overrides(self, value):
-        """Keys are district names, values must parse as money."""
         if not isinstance(value, dict):
             raise serializers.ValidationError("Expected an object of district: charge.")
         from decimal import Decimal, InvalidOperation
@@ -66,12 +64,6 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 class StoreCreateSerializer(serializers.ModelSerializer):
-    """
-    Store-creation wizard (PRD FR-1.3).
-
-    Creating a store also creates the owner membership and default
-    settings, so a new store is immediately usable.
-    """
 
     class Meta:
         model = Store
@@ -111,7 +103,6 @@ class StoreCreateSerializer(serializers.ModelSerializer):
 
 
 class MembershipBriefSerializer(serializers.ModelSerializer):
-    """Compact membership shape, embedded in login and /me responses."""
 
     store_id = serializers.IntegerField(source="store.id", read_only=True)
     store_name = serializers.CharField(source="store.name", read_only=True)
@@ -131,7 +122,6 @@ class MembershipBriefSerializer(serializers.ModelSerializer):
 
 
 class StaffSerializer(serializers.ModelSerializer):
-    """A staff member as shown on the settings screen."""
 
     user_id = serializers.IntegerField(source="user.id", read_only=True)
     email = serializers.EmailField(source="user.email", read_only=True)
@@ -147,11 +137,6 @@ class StaffSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "joined_at", "created_at"]
 
     def validate_role(self, value):
-        """
-        The owner role is not assignable through staff management.
-
-        Ownership transfer is a separate, deliberate action.
-        """
         if value == StoreRole.OWNER:
             raise serializers.ValidationError(
                 "Ownership cannot be assigned here. Use ownership transfer."
@@ -175,7 +160,6 @@ class InvitationSerializer(serializers.ModelSerializer):
 
 
 class InvitationCreateSerializer(serializers.Serializer):
-    """Invite a new staff member by email (PRD FR-1.5)."""
 
     email = serializers.EmailField()
     role = serializers.ChoiceField(
@@ -207,12 +191,6 @@ class InvitationCreateSerializer(serializers.Serializer):
 
 
 class AcceptInvitationSerializer(serializers.Serializer):
-    """
-    Accept an invitation.
-
-    An existing user just joins; a new one supplies name and password,
-    since the invite is also their account creation (PRD FR-1.5).
-    """
 
     token = serializers.CharField()
     full_name = serializers.CharField(required=False, allow_blank=True)

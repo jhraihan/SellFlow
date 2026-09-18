@@ -25,7 +25,6 @@ class StoreAdmin(admin.ModelAdmin):
     inlines = [StoreSettingsInline, StoreMembershipInline]
 
     def get_queryset(self, request):
-        # Platform admins need to see soft-deleted stores for support.
         return Store.all_objects.all()
 
 

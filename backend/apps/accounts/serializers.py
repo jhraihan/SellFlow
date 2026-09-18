@@ -1,4 +1,3 @@
-"""Serializers for registration, login and profile."""
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
@@ -8,7 +7,6 @@ from .models import User, normalise_bd_phone
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Public shape of a user. Never exposes password or permission flags."""
 
     class Meta:
         model = User
@@ -20,7 +18,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    """Account creation (PRD FR-1.1)."""
 
     password = serializers.CharField(write_only=True, min_length=8, trim_whitespace=False)
     password_confirm = serializers.CharField(write_only=True, trim_whitespace=False)
@@ -64,12 +61,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(TokenObtainPairSerializer):
-    """
-    Email + password login.
-
-    Adds the caller's store memberships to the response so the frontend
-    can pick a store without a second round trip.
-    """
 
     @classmethod
     def get_token(cls, user):

@@ -1,11 +1,3 @@
-"""
-Consistent error envelope for the whole API (PRD API conventions):
-
-    {"error": {"code": "...", "message": "...", "details": {...}}}
-
-Error codes are stable strings that clients may branch on, so they are
-part of the API contract and must not be renamed casually.
-"""
 import logging
 
 from django.core.exceptions import PermissionDenied
@@ -18,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class APIError(exceptions.APIException):
-    """Base for domain errors that carry a machine-readable code."""
 
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = "error"
@@ -34,7 +25,6 @@ class APIError(exceptions.APIException):
 
 
 class InvalidTransition(APIError):
-    """An order status change that the state machine disallows."""
 
     status_code = status.HTTP_409_CONFLICT
     default_code = "INVALID_TRANSITION"
@@ -53,7 +43,6 @@ class StoreAccessDenied(APIError):
     default_detail = "You do not have access to this store."
 
 
-# Map DRF's built-in exceptions onto stable codes.
 _DRF_CODES = {
     exceptions.NotAuthenticated: "NOT_AUTHENTICATED",
     exceptions.AuthenticationFailed: "AUTHENTICATION_FAILED",
@@ -75,8 +64,6 @@ def _code_for(exc):
 
 
 def api_exception_handler(exc, context):
-    """DRF EXCEPTION_HANDLER: wrap every error in the standard envelope."""
-    # Normalise Django exceptions into DRF ones first.
     if isinstance(exc, Http404):
         exc = exceptions.NotFound()
     elif isinstance(exc, PermissionDenied):
@@ -96,7 +83,6 @@ def api_exception_handler(exc, context):
 
     response = drf_exception_handler(exc, context)
     if response is None:
-        # Unhandled: log it and return an opaque 500 rather than a traceback.
         view = context.get("view")
         logger.exception("Unhandled exception in %s", view.__class__.__name__
                          if view else "unknown view")
@@ -115,7 +101,6 @@ def api_exception_handler(exc, context):
     code = _code_for(exc)
 
     if isinstance(exc, exceptions.ValidationError):
-        # Field errors go in details; the message stays human-readable.
         message = "The submitted data is invalid."
         details = detail if isinstance(detail, dict) else {"errors": detail}
     else:
