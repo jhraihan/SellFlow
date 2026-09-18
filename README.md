@@ -9,12 +9,12 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Phase 1 — Foundation: complete.**
+**Phases 1–2 complete.** Backend foundation, catalog and customers are done.
 
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Auth, stores, staff roles, tenancy | Done |
-| 2 | Products, variants, stock, customers | Not started |
+| 2 | Products, variants, stock, customers | Done |
 | 3 | Orders & status state machine | Not started |
 | 4 | Couriers & shipments | Not started |
 | 5 | Payments, COD reconciliation, returns | Not started |
@@ -103,7 +103,9 @@ F-commerce/
 │   ├── apps/
 │   │   ├── core/            base models, tenancy mixins, errors, pagination
 │   │   ├── accounts/        User, JWT auth, registration
-│   │   └── stores/          Store, memberships, roles, settings, invitations
+│   │   ├── stores/          Store, memberships, roles, settings, invitations
+│   │   ├── catalog/         products, variants, stock items, stock ledger
+│   │   └── customers/       customers, addresses, risk scoring
 │   ├── tests/
 │   └── requirements.txt
 ├── frontend/                React app
@@ -176,6 +178,26 @@ DELETE /stores/invitations/{id}/  revoke
 POST   /stores/invitations/accept/    public, by token
 
 GET    /stores/my-capabilities/   what the caller may do
+
+GET|POST   /categories/          product categories
+GET|POST   /products/            list (search, filter, low_stock) / create
+GET|PATCH|DELETE /products/{id}/ detail; delete deactivates
+POST   /products/{id}/images/    upload image (max 6)
+GET    /products/{id}/movements/ stock ledger for one product
+GET    /products/export/         CSV export
+POST   /products/import/         CSV import (dry-run unless commit=true)
+
+GET    /stock/                   stock levels, ?low_stock=true
+GET    /stock/summary/           totals + low-stock count
+GET    /stock/movements/         immutable stock ledger
+POST   /stock/receive/           restock
+POST   /stock/adjust/            manual adjustment, reason required
+
+GET|POST   /customers/           list (search, risk filter) / create
+GET|PATCH  /customers/{id}/      detail with metrics and addresses
+GET    /customers/lookup/?phone= order-entry autofill
+POST   /customers/{id}/blacklist/
+GET|POST   /customers/{id}/addresses/
 ```
 
 Errors use one envelope throughout:

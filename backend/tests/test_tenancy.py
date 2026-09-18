@@ -194,3 +194,34 @@ class TestQuerysetLevelScoping:
         rows = view.get_queryset()
         assert rows.count() == 1
         assert rows.first().store_id == two_stores["store_a"].id
+
+
+class TestScopedApiViewsCannotBypassTenancy:
+    def test_no_scoped_view_overrides_get_queryset_unscoped(self):
+        import inspect
+
+        from rest_framework.views import APIView
+
+        from apps.catalog import views as catalog_views
+        from apps.core.mixins import StoreScopedMixin
+        from apps.customers import views as customer_views
+
+        offenders = []
+        for module in (catalog_views, customer_views):
+            for name, obj in vars(module).items():
+                if not inspect.isclass(obj):
+                    continue
+                if not issubclass(obj, StoreScopedMixin):
+                    continue
+                if not issubclass(obj, APIView):
+                    continue
+                if "get_queryset" not in obj.__dict__:
+                    continue
+                source = inspect.getsource(obj.__dict__["get_queryset"])
+                if "super()" not in source and "self.scoped" not in source:
+                    offenders.append(f"{module.__name__}.{name}")
+
+        assert offenders == [], (
+            "These views override get_queryset without scoping to the store: "
+            f"{offenders}"
+        )

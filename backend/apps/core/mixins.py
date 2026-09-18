@@ -70,3 +70,11 @@ class StoreScopedMixin(StoreContextMixin):
         context["store"] = getattr(self.request, "store", None)
         context["membership"] = getattr(self.request, "membership", None)
         return context
+
+    def scoped(self, queryset):
+        store = getattr(self.request, "store", None)
+        if store is None:
+            return queryset.none()
+        if hasattr(queryset, "for_store"):
+            return queryset.for_store(store)
+        return queryset.filter(store=store)
