@@ -9,13 +9,13 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Phases 1–2 complete.** Backend foundation, catalog and customers are done.
+**Phases 1–3 complete.** Backend foundation, catalog, customers and the order state machine are done.
 
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Auth, stores, staff roles, tenancy | Done |
 | 2 | Products, variants, stock, customers | Done |
-| 3 | Orders & status state machine | Not started |
+| 3 | Orders & status state machine | Done |
 | 4 | Couriers & shipments | Not started |
 | 5 | Payments, COD reconciliation, returns | Not started |
 | 6 | Dashboard & analytics | Not started |
@@ -129,7 +129,8 @@ F-commerce/
 │   │   ├── accounts/        User, JWT auth, registration
 │   │   ├── stores/          Store, memberships, roles, settings, invitations
 │   │   ├── catalog/         products, variants, stock items, stock ledger
-│   │   └── customers/       customers, addresses, risk scoring
+│   │   ├── customers/       customers, addresses, risk scoring
+│   │   └── orders/          orders, items, status state machine
 │   ├── tests/
 │   └── requirements.txt
 ├── frontend/                React app
@@ -222,7 +223,44 @@ GET|PATCH  /customers/{id}/      detail with metrics and addresses
 GET    /customers/lookup/?phone= order-entry autofill
 POST   /customers/{id}/blacklist/
 GET|POST   /customers/{id}/addresses/
+
+GET|POST   /orders/              list (search, filters, cursor paging) / create
+GET|PATCH  /orders/{id}/         detail; PATCH edits address and notes only
+PATCH  /orders/{id}/status/      transition through the state machine
+POST   /orders/{id}/confirm/     log a call outcome, confirm or cancel
+PATCH  /orders/{id}/items/       change items while Pending or Confirmed
+GET    /orders/{id}/history/     status timeline
+GET    /orders/stats/            counts by status
+POST   /orders/bulk-status/      bulk transition with per-order results
+POST   /orders/check-duplicate/  warn before creating a repeat order
 ```
+
+## Order lifecycle
+
+```
+Pending ──► Confirmed ──► Processing ──► Ready to Ship ──► Shipped ──► Out for Delivery ──► Delivered
+   │            │              │               │               │              │                │
+   │            └──────────────┴───────────────┘               └──────────────┴────► Returned ◄┘
+   │                           │
+   └───────────────────────────┴────► Cancelled        Pending/Confirmed ◄──► On Hold
+```
+
+Transitions are enforced in `apps/orders/services.py`; anything not in the map returns
+`409 INVALID_TRANSITION` listing what is allowed. Every change writes an append-only
+`OrderStatusHistory` row.
+
+Stock effects are tied to the transition, not to a separate call:
+
+| Transition | Effect |
+|---|---|
+| → Confirmed | Reserves stock; fails with `409 INSUFFICIENT_STOCK` if short |
+| → Cancelled / On Hold | Releases the reservation |
+| → Shipped | Converts the reservation into a real decrement of `on_hand` |
+| → Delivered | Updates the customer's delivered count and lifetime value |
+| → Returned | Updates return count and may escalate the customer's risk level |
+
+Item prices, costs and product names are **snapshotted** onto `OrderItem` at creation, so
+editing a product later never rewrites past orders.
 
 Errors use one envelope throughout:
 
