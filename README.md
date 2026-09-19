@@ -89,6 +89,30 @@ leakage as a Critical risk, so isolation is asserted directly: a seller must nev
 another seller's stores, staff, or settings, and a forged `X-Store-Id` header must be
 refused.
 
+`tests/test_concurrency.py` skips on SQLite and only runs against PostgreSQL, because
+`select_for_update` takes no row lock on SQLite. It proves two simultaneous order
+confirmations cannot oversell the same stock. To run it locally you need Postgres:
+
+```bash
+DATABASE_URL=postgresql://user:pass@localhost:5432/dbname pytest tests/test_concurrency.py
+```
+
+Otherwise CI covers it on every push.
+
+## CI
+
+`.github/workflows/ci.yml` runs three jobs on push and pull request to `main`:
+
+| Job | What it checks |
+|---|---|
+| Lint | `ruff check` |
+| Tests (SQLite) | Full suite, plus `makemigrations --check` so a model change without a migration fails the build |
+| Tests (PostgreSQL) | Full suite against Postgres 16, including the concurrency suite |
+
+The Postgres job ends with a guard that fails if the concurrency tests report as skipped —
+without it a misconfiguration would silently leave stock locking unverified while CI
+still showed green.
+
 ---
 
 ## Layout
