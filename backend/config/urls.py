@@ -8,6 +8,7 @@ from drf_spectacular.views import (
 )
 
 from apps.core.views import health_check
+from apps.shipments.views import CourierWebhookView
 
 API = "api/v1/"
 
@@ -21,6 +22,13 @@ urlpatterns = [
     path(f"{API}", include("apps.catalog.urls")),
     path(f"{API}customers/", include("apps.customers.urls")),
     path(f"{API}orders/", include("apps.orders.urls")),
+    path(f"{API}couriers/", include("apps.couriers.urls")),
+    path(f"{API}shipments/", include("apps.shipments.urls")),
+    path(
+        f"{API}webhooks/courier/<slug:courier_code>/",
+        CourierWebhookView.as_view(),
+        name="courier-webhook",
+    ),
 
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(

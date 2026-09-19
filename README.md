@@ -9,14 +9,14 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Phases 1–3 complete.** Backend foundation, catalog, customers and the order state machine are done.
+**Phases 1–4 complete.** Foundation, catalog, customers, orders and courier delivery are done.
 
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Auth, stores, staff roles, tenancy | Done |
 | 2 | Products, variants, stock, customers | Done |
 | 3 | Orders & status state machine | Done |
-| 4 | Couriers & shipments | Not started |
+| 4 | Couriers & shipments | Done |
 | 5 | Payments, COD reconciliation, returns | Not started |
 | 6 | Dashboard & analytics | Not started |
 | 7 | Plans & billing | Not started |
@@ -130,7 +130,9 @@ F-commerce/
 │   │   ├── stores/          Store, memberships, roles, settings, invitations
 │   │   ├── catalog/         products, variants, stock items, stock ledger
 │   │   ├── customers/       customers, addresses, risk scoring
-│   │   └── orders/          orders, items, status state machine
+│   │   ├── orders/          orders, items, status state machine
+│   │   ├── couriers/        courier registry, adapters, credential storage
+│   │   └── shipments/       shipments, tracking history, sync
 │   ├── tests/
 │   └── requirements.txt
 ├── frontend/                React app
@@ -233,7 +235,61 @@ GET    /orders/{id}/history/     status timeline
 GET    /orders/stats/            counts by status
 POST   /orders/bulk-status/      bulk transition with per-order results
 POST   /orders/check-duplicate/  warn before creating a repeat order
+
+GET    /couriers/               available couriers + required credentials
+GET|POST   /couriers/store-couriers/   enable a courier for the store
+POST   /couriers/store-couriers/{id}/verify/   test stored credentials
+
+POST   /shipments/book/         book one parcel (API or manual)
+POST   /shipments/bulk-book/    book many, with per-order results
+GET    /shipments/              list, ?in_transit=true, ?cod_outstanding=true
+GET    /shipments/{id}/         detail + full tracking history
+POST   /shipments/{id}/sync/    force a tracking refresh
+POST   /shipments/{id}/status/  record a status by hand (manual couriers)
+POST   /shipments/{id}/cost/    record what the courier actually charged
+POST   /shipments/{id}/cancel/  cancel the shipment
+POST   /webhooks/courier/{code}/   signed courier callback, public
 ```
+
+## Couriers
+
+Every courier sits behind one adapter interface in `apps/couriers/adapters/`, so adding a
+courier touches no order or shipment code. Three ship today:
+
+| Adapter | Booking | Tracking | Webhook |
+|---|---|---|---|
+| `manual` | Type the consignment id yourself | Update by hand | — |
+| `pathao` | API | Polled | Signature header |
+| `steadfast` | API | Polled | HMAC-SHA256 |
+
+**Manual mode needs no credentials and works immediately** — book on the courier's own site,
+paste the consignment id, and the order still moves and COD is still tracked. API booking
+switches on the moment credentials are saved; `GET /couriers/` tells the frontend which
+fields each courier requires.
+
+Credentials are encrypted at rest with Fernet (`FIELD_ENCRYPTION_KEY`) and are never
+returned by the API. A test asserts this by reading the raw column with SQL.
+
+Courier statuses never reach an order directly. Each adapter maps them onto our own
+statuses, and the result is applied only if the state machine allows it — a courier cannot
+push an order into an illegal state, and an unrecognised status is recorded in tracking
+history without touching the order.
+
+Every outbound call has a timeout, bounded retries with backoff, and a circuit breaker, so
+one courier's outage cannot stall booking. If booking fails the order stays Confirmed with
+its stock still reserved, so nothing is silently lost.
+
+### Tracking sync without Celery
+
+Render's free tier has no Redis or background workers, so polling runs as a management
+command driven by a Render Cron Job:
+
+```bash
+python manage.py sync_tracking --limit 200
+```
+
+The poll interval widens with shipment age (15 min for the first 2 days, 2 h to a week,
+12 h to a month), and a shipment that fails 10 times in a row is dropped from the rotation.
 
 ## Order lifecycle
 

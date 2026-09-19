@@ -22,6 +22,10 @@ psycopg[binary]==3.2.3
 gunicorn==23.0.0
 whitenoise==6.8.2
 
+# ---------------------------------------------------------------- http
+# Outbound calls to courier APIs (Pathao, Steadfast).
+requests==2.32.3
+
 # ---------------------------------------------------------------- media
 # Required by Django's ImageField (store logos, product images).
 Pillow==11.0.0
