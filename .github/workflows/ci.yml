@@ -50,6 +50,7 @@ jobs:
         env:
           SECRET_KEY: ci-only-not-a-real-secret
           DEBUG: "True"
+          FIELD_ENCRYPTION_KEY: U6NqWrNpqJTlkZYNLyRChEF0LqxQPoIZIfq5sWqfGTo=
         run: python manage.py makemigrations --check --dry-run
 
       - name: Run tests
@@ -57,6 +58,7 @@ jobs:
         env:
           SECRET_KEY: ci-only-not-a-real-secret
           DEBUG: "True"
+          FIELD_ENCRYPTION_KEY: U6NqWrNpqJTlkZYNLyRChEF0LqxQPoIZIfq5sWqfGTo=
         run: pytest -q
 
   test-postgres:
@@ -95,6 +97,7 @@ jobs:
         env:
           SECRET_KEY: ci-only-not-a-real-secret
           DEBUG: "True"
+          FIELD_ENCRYPTION_KEY: U6NqWrNpqJTlkZYNLyRChEF0LqxQPoIZIfq5sWqfGTo=
           DATABASE_URL: postgresql://shopflow:shopflow@localhost:5432/shopflow_test
         run: pytest -q
 
@@ -103,6 +106,7 @@ jobs:
         env:
           SECRET_KEY: ci-only-not-a-real-secret
           DEBUG: "True"
+          FIELD_ENCRYPTION_KEY: U6NqWrNpqJTlkZYNLyRChEF0LqxQPoIZIfq5sWqfGTo=
           DATABASE_URL: postgresql://shopflow:shopflow@localhost:5432/shopflow_test
         run: |
           output=$(pytest tests/test_concurrency.py -q 2>&1)
