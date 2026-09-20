@@ -91,13 +91,19 @@ refused.
 
 `tests/test_concurrency.py` skips on SQLite and only runs against PostgreSQL, because
 `select_for_update` takes no row lock on SQLite. It proves two simultaneous order
-confirmations cannot oversell the same stock. To run it locally you need Postgres:
+confirmations cannot oversell the same stock.
+
+To run the whole suite against PostgreSQL, create a database and point `DATABASE_URL`
+at it in `backend/.env`:
 
 ```bash
-DATABASE_URL=postgresql://user:pass@localhost:5432/dbname pytest tests/test_concurrency.py
+createdb shopflow
+# backend/.env
+DATABASE_URL=postgresql://postgres:yourpassword@127.0.0.1:5432/shopflow
 ```
 
-Otherwise CI covers it on every push.
+With `DATABASE_URL` unset the suite falls back to SQLite and those four tests skip.
+CI runs both, so every push is covered either way.
 
 ## CI
 
