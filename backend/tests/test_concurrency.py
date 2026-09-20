@@ -29,7 +29,7 @@ def stock(make_user, make_store):
     return item
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
 @postgres_only
 class TestConcurrentReservation:
     def test_two_threads_cannot_oversell(self, stock):
@@ -125,7 +125,7 @@ class TestConcurrentReservation:
         assert rebuilt["on_hand"] == stock.on_hand
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db(transaction=True, serialized_rollback=True)
 @postgres_only
 def test_select_for_update_actually_locks(stock):
     acquired = threading.Event()

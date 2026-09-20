@@ -9,7 +9,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Phases 1–5 complete.** Foundation, catalog, customers, orders, courier delivery, and the money side are done.
+**Phases 1–6 complete.** Everything but plans and billing is built.
 
 | Phase | Scope | State |
 |---|---|---|
@@ -18,7 +18,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 | 3 | Orders & status state machine | Done |
 | 4 | Couriers & shipments | Done |
 | 5 | Payments, COD reconciliation, returns | Done |
-| 6 | Dashboard & analytics | Not started |
+| 6 | Dashboard & analytics | Done |
 | 7 | Plans & billing | Not started |
 
 ---
@@ -141,7 +141,8 @@ F-commerce/
 │   │   ├── shipments/       shipments, tracking history, sync
 │   │   ├── payments/        payments, COD ledger, settlement import
 │   │   ├── returns/         returns, restock/write-off, refunds
-│   │   └── expenses/        operating expenses
+│   │   ├── expenses/        operating expenses
+│   │   └── analytics/       dashboard, profit and performance reports
 │   ├── tests/
 │   └── requirements.txt
 ├── frontend/                React app
@@ -273,7 +274,40 @@ GET    /returns/analytics/      return rate by reason, product, district, courie
 
 GET|POST   /expenses/           operating expenses
 GET    /expenses/summary/       totals by category
+
+GET    /analytics/dashboard/    KPI row, COD buckets, low stock, top products
+GET    /analytics/profit/       the full profit breakdown
+GET    /analytics/sales/        summary + a day/week/month series
+GET    /analytics/products/     units, revenue, margin, return rate
+GET    /analytics/couriers/     success rate, return rate, average cost
+GET    /analytics/districts/    volume and success rate by district
+GET    /analytics/staff/        orders handled and confirmation rate
+GET    /analytics/reconciliation/   how much delivered COD is actually settled
+GET    /analytics/export/?report=   CSV export of any report above
 ```
+
+## Profit
+
+The formula is implemented exactly as Appendix A of the PRD states it, because trust in
+this number is the product's whole value proposition:
+
+```
+Net Sales    = Gross Sales - Discounts
+Gross Profit = Net Sales + Delivery Revenue - COGS - Delivery Cost
+Net Profit   = Gross Profit - Return Loss - Operating Expenses
+```
+
+**Revenue is recognised on Delivered, never on order creation.** A pending order in a COD
+market is not revenue, and a shipped-but-undelivered one is a cost with no income yet.
+Two tests pin this down directly.
+
+`tests/test_analytics.py` contains a hand-computed month: three delivered orders with
+known prices, costs, discounts, delivery charges and one expense, asserted line by line
+against the report. If any part of the formula drifts, that test says so.
+
+Every analytics response passes through `as_money`, which renders each `Decimal` as a
+two-place string. A parametrised test walks every endpoint's JSON and fails if any value
+comes back as a float, since float money silently loses precision.
 
 ## COD reconciliation
 

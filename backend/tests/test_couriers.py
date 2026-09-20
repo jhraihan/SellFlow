@@ -411,3 +411,15 @@ class TestStoreCourierModel:
         second.refresh_from_db()
         assert first.is_default is False
         assert second.is_default is True
+
+
+class TestSeedDataSurvives:
+    def test_migration_seeded_couriers_are_present(self):
+        codes = set(
+            Courier.objects.values_list("code", flat=True)
+        )
+        assert {"manual", "pathao", "steadfast"} <= codes, (
+            "The courier seed data from the migration is missing. A "
+            "transactional test without serialized_rollback=True truncates "
+            "tables and wipes it for every test that follows."
+        )
