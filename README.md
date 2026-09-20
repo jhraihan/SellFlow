@@ -9,7 +9,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Phases 1–4 complete.** Foundation, catalog, customers, orders and courier delivery are done.
+**Phases 1–5 complete.** Foundation, catalog, customers, orders, courier delivery, and the money side are done.
 
 | Phase | Scope | State |
 |---|---|---|
@@ -17,7 +17,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 | 2 | Products, variants, stock, customers | Done |
 | 3 | Orders & status state machine | Done |
 | 4 | Couriers & shipments | Done |
-| 5 | Payments, COD reconciliation, returns | Not started |
+| 5 | Payments, COD reconciliation, returns | Done |
 | 6 | Dashboard & analytics | Not started |
 | 7 | Plans & billing | Not started |
 
@@ -138,7 +138,10 @@ F-commerce/
 │   │   ├── customers/       customers, addresses, risk scoring
 │   │   ├── orders/          orders, items, status state machine
 │   │   ├── couriers/        courier registry, adapters, credential storage
-│   │   └── shipments/       shipments, tracking history, sync
+│   │   ├── shipments/       shipments, tracking history, sync
+│   │   ├── payments/        payments, COD ledger, settlement import
+│   │   ├── returns/         returns, restock/write-off, refunds
+│   │   └── expenses/        operating expenses
 │   ├── tests/
 │   └── requirements.txt
 ├── frontend/                React app
@@ -255,7 +258,52 @@ POST   /shipments/{id}/status/  record a status by hand (manual couriers)
 POST   /shipments/{id}/cost/    record what the courier actually charged
 POST   /shipments/{id}/cancel/  cancel the shipment
 POST   /webhooks/courier/{code}/   signed courier callback, public
+
+GET|POST   /payments/           payment records
+GET    /payments/cod-ledger/    in transit / unsettled / overdue / shortfalls
+POST   /payments/settlements/   upload a courier statement (creates a draft)
+GET    /payments/settlements/{id}/preview/   matched / unmatched / mismatch
+POST   /payments/settlements/{id}/commit/    apply the statement
+DELETE /payments/settlements/{id}/           discard a draft
+
+GET|POST   /returns/            returns
+POST   /returns/{id}/receive/   parcel came back
+POST   /returns/{id}/resolve/   restock or write off, optional refund
+GET    /returns/analytics/      return rate by reason, product, district, courier
+
+GET|POST   /expenses/           operating expenses
+GET    /expenses/summary/       totals by category
 ```
+
+## COD reconciliation
+
+This is the part the PRD argues nobody else does well, so it is built to be safe rather
+than clever.
+
+A courier statement is uploaded as CSV and becomes a **draft**. Nothing is settled until
+someone confirms it. Every row lands in one of four buckets:
+
+| Bucket | Meaning |
+|---|---|
+| Matched | Consignment found and the amount agrees |
+| Amount mismatch | Consignment found, the courier paid a different amount |
+| Unmatched | No shipment with that consignment id |
+| Already settled | That shipment was settled by an earlier statement |
+
+Committing settles only the matched rows. Mismatches are skipped unless the seller
+explicitly opts in, because a silent mismatch is money quietly lost. When a mismatch is
+committed, the shortfall is recorded and surfaced on the COD ledger.
+
+Column names vary between couriers, so the parser accepts several spellings for each
+field and strips currency symbols and thousands separators.
+
+## Returns
+
+A return books the real loss against the order: forward delivery cost, return charge, and
+the cost value of anything written off. Items are restocked only when marked sellable;
+anything damaged leaves stock alone and is recorded as a write-off.
+
+Refunds create an outgoing payment and can never exceed what the customer actually paid.
 
 ## Couriers
 

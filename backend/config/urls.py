@@ -24,6 +24,9 @@ urlpatterns = [
     path(f"{API}orders/", include("apps.orders.urls")),
     path(f"{API}couriers/", include("apps.couriers.urls")),
     path(f"{API}shipments/", include("apps.shipments.urls")),
+    path(f"{API}payments/", include("apps.payments.urls")),
+    path(f"{API}returns/", include("apps.returns.urls")),
+    path(f"{API}expenses/", include("apps.expenses.urls")),
     path(
         f"{API}webhooks/courier/<slug:courier_code>/",
         CourierWebhookView.as_view(),
