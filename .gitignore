@@ -40,6 +40,7 @@ htmlcov/
 # ---------------------------------------------------------------- node / react
 node_modules/
 /frontend/dist/
+/frontend/public/devlogin.html
 /frontend/build/
 .vite/
 npm-debug.log*

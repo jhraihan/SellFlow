@@ -9,7 +9,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Backend complete.** All seven phases are built; the React frontend and deployment remain.
+**Backend complete. Frontend underway.** The dashboard, order list and fast order entry work end to end; delivery, returns, payments, analytics and settings screens are still stubs.
 
 | Phase | Scope | State |
 |---|---|---|
@@ -67,11 +67,23 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+Then start the React app in a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Vite serves on http://127.0.0.1:5173 and proxies `/api` to Django, so no CORS
+configuration is needed in development.
+
 | URL | What |
 |---|---|
 | http://127.0.0.1:8000/api/docs/ | Swagger UI |
 | http://127.0.0.1:8000/admin/ | Django admin |
 | http://127.0.0.1:8000/healthz/ | Health probe |
+| http://127.0.0.1:5173/ | React dashboard |
 
 ---
 
@@ -147,7 +159,11 @@ F-commerce/
 │   │   └── billing/         plans, subscriptions, usage metering
 │   ├── tests/
 │   └── requirements.txt
-├── frontend/                React app
+├── frontend/
+│   └── src/
+│       ├── lib/             api client, auth store, formatting
+│       ├── components/      layout and shared UI
+│       └── pages/           one file per route
 └── docs/                    PRD
 ```
 
