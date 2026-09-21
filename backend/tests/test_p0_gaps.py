@@ -4,7 +4,6 @@ import pytest
 from django.core import mail
 from django.utils import timezone
 
-from apps.accounts.models import User
 from apps.accounts.tokens import issue_reset_token
 from apps.catalog.models import Product
 from apps.catalog.services import get_or_create_stock_item, receive_stock
