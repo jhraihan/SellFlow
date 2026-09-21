@@ -113,3 +113,28 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data["new_password"])
         user.save(update_fields=["password", "updated_at"])
         return user
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.lower().strip()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    new_password = serializers.CharField(
+        write_only=True, min_length=8, trim_whitespace=False
+    )
+
+    def validate_new_password(self, value):
+        try:
+            password_validation.validate_password(value)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(list(exc.messages)) from None
+        return value
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    token = serializers.CharField()

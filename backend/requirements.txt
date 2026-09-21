@@ -26,6 +26,10 @@ whitenoise==6.8.2
 # Outbound calls to courier APIs (Pathao, Steadfast).
 requests==2.32.3
 
+# ---------------------------------------------------------------- pdf
+# Invoices and thermal parcel labels (PRD FR-5.10).
+reportlab==4.2.5
+
 # ---------------------------------------------------------------- media
 # Required by Django's ImageField (store logos, product images).
 Pillow==11.0.0

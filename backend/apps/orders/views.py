@@ -224,6 +224,37 @@ class OrderViewSet(StoreScopedMixin, viewsets.ModelViewSet):
             ).data
         )
 
+    @action(detail=True, methods=["get"], url_path="invoice")
+    def invoice(self, request, pk=None):
+        from django.http import FileResponse
+
+        from .documents import build_invoice_pdf
+
+        order = self.get_object()
+        buffer = build_invoice_pdf(order)
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename=f"invoice-{order.order_number}.pdf",
+            content_type="application/pdf",
+        )
+
+    @action(detail=True, methods=["get"], url_path="label")
+    def label(self, request, pk=None):
+        from django.http import FileResponse
+
+        from .documents import build_label_pdf
+
+        order = self.get_object()
+        shipment = order.shipments.filter(cancelled_at__isnull=True).first()
+        buffer = build_label_pdf(order, shipment)
+        return FileResponse(
+            buffer,
+            as_attachment=True,
+            filename=f"label-{order.order_number}.pdf",
+            content_type="application/pdf",
+        )
+
     @action(detail=False, methods=["get"], url_path="stats")
     def stats(self, request):
         queryset = self.get_queryset()

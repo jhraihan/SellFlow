@@ -8,6 +8,7 @@ from drf_spectacular.views import (
 )
 
 from apps.core.views import health_check
+from apps.shipments.public_views import PublicTrackingView
 from apps.shipments.views import CourierWebhookView
 
 API = "api/v1/"
@@ -24,6 +25,11 @@ urlpatterns = [
     path(f"{API}orders/", include("apps.orders.urls")),
     path(f"{API}couriers/", include("apps.couriers.urls")),
     path(f"{API}shipments/", include("apps.shipments.urls")),
+    path(
+        f"{API}public/track/",
+        PublicTrackingView.as_view(),
+        name="public-track",
+    ),
     path(f"{API}payments/", include("apps.payments.urls")),
     path(f"{API}returns/", include("apps.returns.urls")),
     path(f"{API}expenses/", include("apps.expenses.urls")),

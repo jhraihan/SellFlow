@@ -196,6 +196,10 @@ POST   /auth/refresh/             rotate access token
 POST   /auth/logout/              blacklist refresh token
 GET    /auth/me/                  current user + stores
 POST   /auth/password/change/
+POST   /auth/password/reset/      request a reset link, public
+POST   /auth/password/reset/confirm/   set a new password by token
+POST   /auth/email/verify/send/   send a verification email
+POST   /auth/email/verify/        confirm an email by token
 
 GET    /stores/                   stores you belong to
 POST   /stores/                   create store (+ owner membership + settings)
@@ -245,6 +249,8 @@ GET    /orders/{id}/history/     status timeline
 GET    /orders/stats/            counts by status
 POST   /orders/bulk-status/      bulk transition with per-order results
 POST   /orders/check-duplicate/  warn before creating a repeat order
+GET    /orders/{id}/invoice/     A5 invoice PDF
+GET    /orders/{id}/label/       100x150mm thermal parcel label PDF
 
 GET    /couriers/               available couriers + required credentials
 GET|POST   /couriers/store-couriers/   enable a courier for the store
@@ -259,6 +265,7 @@ POST   /shipments/{id}/status/  record a status by hand (manual couriers)
 POST   /shipments/{id}/cost/    record what the courier actually charged
 POST   /shipments/{id}/cancel/  cancel the shipment
 POST   /webhooks/courier/{code}/   signed courier callback, public
+GET    /public/track/?code=       customer order tracking, no login
 
 GET|POST   /payments/           payment records
 GET    /payments/cod-ledger/    in transit / unsettled / overdue / shortfalls
