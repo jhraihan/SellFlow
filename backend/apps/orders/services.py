@@ -108,6 +108,10 @@ def create_order(
     if not items:
         raise OrderError("An order needs at least one item.", code="NO_ITEMS")
 
+    from apps.billing.services import check_order_allowance, record_order
+
+    check_order_allowance(store)
+
     snapshots = [build_item_snapshot(store, row) for row in items]
 
     if delivery_charge is None:
@@ -180,6 +184,7 @@ def create_order(
     )
 
     _touch_customer_on_create(customer)
+    record_order(store)
     return order
 
 

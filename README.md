@@ -9,7 +9,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Phases 1–6 complete.** Everything but plans and billing is built.
+**Backend complete.** All seven phases are built; the React frontend and deployment remain.
 
 | Phase | Scope | State |
 |---|---|---|
@@ -19,7 +19,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 | 4 | Couriers & shipments | Done |
 | 5 | Payments, COD reconciliation, returns | Done |
 | 6 | Dashboard & analytics | Done |
-| 7 | Plans & billing | Not started |
+| 7 | Plans & billing | Done |
 
 ---
 
@@ -142,7 +142,9 @@ F-commerce/
 │   │   ├── payments/        payments, COD ledger, settlement import
 │   │   ├── returns/         returns, restock/write-off, refunds
 │   │   ├── expenses/        operating expenses
-│   │   └── analytics/       dashboard, profit and performance reports
+│   │   ├── analytics/       dashboard, profit and performance reports
+│   │   ├── notifications/   in-app alert centre and scans
+│   │   └── billing/         plans, subscriptions, usage metering
 │   ├── tests/
 │   └── requirements.txt
 ├── frontend/                React app
@@ -266,6 +268,16 @@ POST   /shipments/{id}/cost/    record what the courier actually charged
 POST   /shipments/{id}/cancel/  cancel the shipment
 POST   /webhooks/courier/{code}/   signed courier callback, public
 GET    /public/track/?code=       customer order tracking, no login
+GET    /public/stores/{slug}/     public shop page with its products
+POST   /public/stores/{slug}/orders/   public order form, no login
+
+GET    /notifications/            alert centre
+GET    /notifications/unread-count/
+POST   /notifications/mark-read/  by ids, or all
+
+GET    /billing/plans/            available plans
+GET    /billing/subscription/     current plan and usage this period
+POST   /billing/activate/         owner only, manual activation
 
 GET|POST   /payments/           payment records
 GET    /payments/cod-ledger/    in transit / unsettled / overdue / shortfalls
@@ -374,13 +386,22 @@ Every outbound call has a timeout, bounded retries with backoff, and a circuit b
 one courier's outage cannot stall booking. If booking fails the order stays Confirmed with
 its stock still reserved, so nothing is silently lost.
 
-### Tracking sync without Celery
+### Plans and usage
+
+Every store starts on Free: 50 orders per period, one user, manual courier booking only.
+Order creation checks the allowance first and refuses with `402 PLAN_LIMIT_REACHED` once
+the cap is reached, so a store cannot quietly exceed what it pays for. Usage resets when
+the period rolls over. Activation is manual by the owner against a bank or bKash
+reference, since automated recurring billing is not built yet.
+
+### Scheduled work without Celery
 
 Render's free tier has no Redis or background workers, so polling runs as a management
 command driven by a Render Cron Job:
 
 ```bash
-python manage.py sync_tracking --limit 200
+python manage.py sync_tracking --limit 200   # courier tracking
+python manage.py scan_alerts                 # low stock and overdue COD
 ```
 
 The poll interval widens with shipment age (15 min for the first 2 days, 2 h to a week,

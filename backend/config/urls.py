@@ -8,6 +8,10 @@ from drf_spectacular.views import (
 )
 
 from apps.core.views import health_check
+from apps.orders.public_views import (
+    PublicOrderCreateView,
+    PublicStoreView,
+)
 from apps.shipments.public_views import PublicTrackingView
 from apps.shipments.views import CourierWebhookView
 
@@ -30,10 +34,25 @@ urlpatterns = [
         PublicTrackingView.as_view(),
         name="public-track",
     ),
+    path(
+        f"{API}public/stores/<slug:slug>/",
+        PublicStoreView.as_view(),
+        name="public-store",
+    ),
+    path(
+        f"{API}public/stores/<slug:slug>/orders/",
+        PublicOrderCreateView.as_view(),
+        name="public-store-order",
+    ),
     path(f"{API}payments/", include("apps.payments.urls")),
     path(f"{API}returns/", include("apps.returns.urls")),
     path(f"{API}expenses/", include("apps.expenses.urls")),
     path(f"{API}analytics/", include("apps.analytics.urls")),
+    path(
+        f"{API}notifications/",
+        include("apps.notifications.urls"),
+    ),
+    path(f"{API}billing/", include("apps.billing.urls")),
     path(
         f"{API}webhooks/courier/<slug:courier_code>/",
         CourierWebhookView.as_view(),

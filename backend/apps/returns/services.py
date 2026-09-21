@@ -134,6 +134,10 @@ def create_return(
         shipment.cod_status = CodStatus.NOT_APPLICABLE
         shipment.save(update_fields=["cod_status", "updated_at"])
 
+    from apps.notifications.services import notify_return
+
+    notify_return(record)
+
     if move_order and order.status != OrderStatus.RETURNED:
         if order.can_transition_to(OrderStatus.RETURNED):
             transition_status(
