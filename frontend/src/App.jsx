@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { readTokens } from "@/lib/api";
@@ -6,18 +6,23 @@ import Layout from "@/components/Layout";
 import { PageLoader } from "@/components/ui";
 
 import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ResetPassword from "@/pages/ResetPassword";
-import Onboarding from "@/pages/Onboarding";
-import Dashboard from "@/pages/Dashboard";
-import Orders from "@/pages/Orders";
-import OrderNew from "@/pages/OrderNew";
-import OrderDetail from "@/pages/OrderDetail";
-import Products from "@/pages/Products";
-import Customers from "@/pages/Customers";
-import Notifications from "@/pages/Notifications";
-import Placeholder from "@/pages/Placeholder";
+
+const Register = lazy(() => import("@/pages/Register"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Orders = lazy(() => import("@/pages/Orders"));
+const OrderNew = lazy(() => import("@/pages/OrderNew"));
+const OrderDetail = lazy(() => import("@/pages/OrderDetail"));
+const Products = lazy(() => import("@/pages/Products"));
+const Customers = lazy(() => import("@/pages/Customers"));
+const Delivery = lazy(() => import("@/pages/Delivery"));
+const Returns = lazy(() => import("@/pages/Returns"));
+const Payments = lazy(() => import("@/pages/Payments"));
+const Analytics = lazy(() => import("@/pages/Analytics"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
 
 function RequireAuth({ children }) {
   const { user, stores, ready } = useAuth();
@@ -48,45 +53,32 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/login" element={<RedirectIfSignedIn><Login /></RedirectIfSignedIn>} />
-      <Route path="/register" element={<RedirectIfSignedIn><Register /></RedirectIfSignedIn>} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
-      <Route path="/onboarding" element={<Onboarding />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/login" element={<RedirectIfSignedIn><Login /></RedirectIfSignedIn>} />
+        <Route path="/register" element={<RedirectIfSignedIn><Register /></RedirectIfSignedIn>} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/onboarding" element={<Onboarding />} />
 
-      <Route element={<RequireAuth><Layout /></RequireAuth>}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/orders/new" element={<OrderNew />} />
-        <Route path="/orders/:id" element={<OrderDetail />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/delivery" element={
-          <Placeholder title="Delivery"
-            description="Shipment board and courier booking come next." />
-        } />
-        <Route path="/returns" element={
-          <Placeholder title="Returns"
-            description="Return processing comes next." />
-        } />
-        <Route path="/payments" element={
-          <Placeholder title="Payments"
-            description="COD ledger and settlement import come next." />
-        } />
-        <Route path="/analytics" element={
-          <Placeholder title="Analytics"
-            description="Profit and performance reports come next." />
-        } />
-        <Route path="/settings" element={
-          <Placeholder title="Settings"
-            description="Store profile, staff and couriers come next." />
-        } />
-      </Route>
+        <Route element={<RequireAuth><Layout /></RequireAuth>}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/new" element={<OrderNew />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/delivery" element={<Delivery />} />
+          <Route path="/returns" element={<Returns />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/notifications" element={<Notifications />} />
+        </Route>
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </Suspense>
   );
 }

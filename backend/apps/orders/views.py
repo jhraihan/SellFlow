@@ -13,6 +13,7 @@ from apps.core.pagination import HighVolumeCursorPagination
 from apps.customers.models import Customer
 from apps.stores.permissions import Cap, HasStoreCapability, IsStoreMember
 
+from .filters import OrderFilter
 from .models import Order
 from .serializers import (
     BulkStatusSerializer,
@@ -47,9 +48,7 @@ class OrderViewSet(StoreScopedMixin, viewsets.ModelViewSet):
         "DELETE": Cap.MANAGE_ORDERS,
     }
     pagination_class = HighVolumeCursorPagination
-    filterset_fields = [
-        "status", "source", "payment_status", "shipping_district", "customer",
-    ]
+    filterset_class = OrderFilter
     ordering_fields = ["created_at", "total_amount"]
     ordering = ["-created_at"]
     http_method_names = ["get", "post", "patch", "head", "options"]

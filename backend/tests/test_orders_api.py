@@ -455,3 +455,36 @@ class TestOrderApiTenancy:
         assert response.status_code == 404
         order.refresh_from_db()
         assert order.status == OrderStatus.PENDING
+
+
+class TestMultiValueFilters:
+    def test_repeated_status_params_match_any(self, shop, auth):
+        first = seed_order(shop)
+        transition_status(first, OrderStatus.CONFIRMED)
+        second = seed_order(shop)
+        transition_status(second, OrderStatus.CANCELLED, reason="duplicate")
+        seed_order(shop)
+
+        response = auth(shop["owner"], store=shop["store"]).get(
+            f"{ORDERS}?status=confirmed&status=pending"
+        )
+
+        statuses = {row["status"] for row in response.data["results"]}
+        assert statuses == {OrderStatus.CONFIRMED, OrderStatus.PENDING}
+
+    def test_single_status_still_works(self, shop, auth):
+        order = seed_order(shop)
+        transition_status(order, OrderStatus.CONFIRMED)
+        seed_order(shop)
+
+        response = auth(shop["owner"], store=shop["store"]).get(
+            f"{ORDERS}?status=confirmed"
+        )
+
+        assert len(response.data["results"]) == 1
+
+    def test_unknown_status_value_is_rejected(self, shop, auth):
+        response = auth(shop["owner"], store=shop["store"]).get(
+            f"{ORDERS}?status=teleported"
+        )
+        assert response.status_code == 400

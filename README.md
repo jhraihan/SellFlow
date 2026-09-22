@@ -9,7 +9,7 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/ShopFlow_BD_PRD.pdf
 
 ## Status
 
-**Backend complete. Frontend underway.** The dashboard, order list and fast order entry work end to end; delivery, returns, payments, analytics and settings screens are still stubs.
+**Backend and frontend complete.** Every screen in the PRD is built. Deployment is the remaining work.
 
 | Phase | Scope | State |
 |---|---|---|
