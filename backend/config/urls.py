@@ -7,7 +7,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from apps.core.views import health_check
+from apps.core.views import health_check, run_scheduled_jobs
 from apps.orders.public_views import (
     PublicOrderCreateView,
     PublicStoreView,
@@ -21,6 +21,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     path("healthz/", health_check, name="health-check"),
+    path(
+        f"{API}internal/jobs/run/",
+        run_scheduled_jobs,
+        name="run-scheduled-jobs",
+    ),
 
     path(f"{API}auth/", include("apps.accounts.urls")),
     path(f"{API}stores/", include("apps.stores.urls")),

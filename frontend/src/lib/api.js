@@ -19,7 +19,7 @@ export function writeTokens(tokens) {
     if (tokens) localStorage.setItem(TOKEN_KEY, JSON.stringify(tokens));
     else localStorage.removeItem(TOKEN_KEY);
   } catch {
-    /* storage can be unavailable in private mode */
+    return;
   }
 }
 
@@ -36,7 +36,7 @@ export function writeStoreId(storeId) {
     if (storeId) localStorage.setItem(STORE_KEY, String(storeId));
     else localStorage.removeItem(STORE_KEY);
   } catch {
-    /* ignore */
+    return;
   }
 }
 
@@ -121,4 +121,20 @@ export function fieldErrors(error) {
 
 export function errorCode(error) {
   return error?.response?.data?.error?.code || null;
+}
+
+export async function downloadFile(path, fallbackName) {
+  const response = await api.get(path, { responseType: "blob" });
+  const disposition = response.headers["content-disposition"] || "";
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  const name = match ? match[1] : fallbackName;
+
+  const url = URL.createObjectURL(response.data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

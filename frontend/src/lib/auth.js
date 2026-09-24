@@ -87,12 +87,8 @@ export const useAuth = create((set, get) => ({
 
   async logout() {
     const tokens = readTokens();
-    try {
-      if (tokens?.refresh) {
-        await api.post("/auth/logout/", { refresh: tokens.refresh });
-      }
-    } catch {
-      /* logging out locally is what matters */
+    if (tokens?.refresh) {
+      await api.post("/auth/logout/", { refresh: tokens.refresh }).catch(() => null);
     }
     writeTokens(null);
     writeStoreId(null);

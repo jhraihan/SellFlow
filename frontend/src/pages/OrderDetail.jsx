@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, errorMessage } from "@/lib/api";
+import { api, downloadFile, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { dateTime, money, ORDER_STATUS_LABELS } from "@/lib/format";
 import { Alert, Modal, PageLoader, RiskBadge, Spinner, StatusBadge } from "@/components/ui";
@@ -78,8 +78,18 @@ export default function OrderDetail() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <a href={`/api/v1/orders/${id}/invoice/`} className="btn-secondary text-sm">Invoice</a>
-          <a href={`/api/v1/orders/${id}/label/`} className="btn-secondary text-sm">Label</a>
+          <button type="button" className="btn-secondary text-sm"
+            onClick={() => downloadFile(`/orders/${id}/invoice/`,
+              `invoice-${order.order_number}.pdf`).catch(
+              (err) => setFailure(errorMessage(err, "Could not download the invoice.")))}>
+            Invoice
+          </button>
+          <button type="button" className="btn-secondary text-sm"
+            onClick={() => downloadFile(`/orders/${id}/label/`,
+              `label-${order.order_number}.pdf`).catch(
+              (err) => setFailure(errorMessage(err, "Could not download the label.")))}>
+            Label
+          </button>
         </div>
       </div>
 

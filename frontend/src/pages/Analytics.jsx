@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { api } from "@/lib/api";
+import { api, downloadFile } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, moneyShort } from "@/lib/format";
 import { Alert, EmptyState, PageLoader, StatCard } from "@/components/ui";
@@ -212,8 +212,11 @@ function Panel({ title, rows, render, empty, exportKey }) {
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-sm font-semibold">{title}</h2>
         {rows.length > 0 && (
-          <a href={`/api/v1/analytics/export/?report=${exportKey}`}
-            className="text-xs text-brand-600 hover:underline">Export CSV</a>
+          <button type="button" className="text-xs text-brand-600 hover:underline"
+            onClick={() => downloadFile(`/analytics/export/?report=${exportKey}`,
+              `${exportKey}-report.csv`)}>
+            Export CSV
+          </button>
         )}
       </div>
       {rows.length === 0 ? (

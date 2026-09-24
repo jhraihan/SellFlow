@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import json
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -16,7 +18,11 @@ def _get_cipher():
         )
     if isinstance(key, str):
         key = key.encode()
-    return Fernet(key)
+    try:
+        return Fernet(key)
+    except (ValueError, TypeError):
+        derived = base64.urlsafe_b64encode(hashlib.sha256(key).digest())
+        return Fernet(derived)
 
 
 def encrypt_text(value):

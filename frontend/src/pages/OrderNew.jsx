@@ -21,7 +21,7 @@ function saveDraft(draft) {
   try {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
   } catch {
-    /* ignore */
+    return;
   }
 }
 
@@ -29,7 +29,7 @@ function clearDraft() {
   try {
     localStorage.removeItem(DRAFT_KEY);
   } catch {
-    /* ignore */
+    return;
   }
 }
 

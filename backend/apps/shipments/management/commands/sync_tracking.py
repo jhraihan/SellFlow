@@ -6,7 +6,7 @@ from apps.shipments.services import sync_due_shipments
 class Command(BaseCommand):
     help = (
         "Poll couriers for tracking updates on in-transit shipments. "
-        "Intended to run as a Render Cron Job."
+        "The scheduled jobs endpoint runs the same sync."
     )
 
     def add_arguments(self, parser):

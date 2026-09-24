@@ -6,7 +6,7 @@ from apps.notifications.services import run_all_scans
 class Command(BaseCommand):
     help = (
         "Raise low-stock and overdue-COD notifications for every active "
-        "store. Intended to run as a Render Cron Job."
+        "store. The scheduled jobs endpoint runs the same scan."
     )
 
     def handle(self, *args, **options):
