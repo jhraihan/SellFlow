@@ -2,12 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { relative } from "@/lib/format";
-import { Alert, EmptyState, PageLoader } from "@/components/ui";
+import { Alert, EmptyState, PageHeader, PageLoader } from "@/components/ui";
 
 const LEVEL_CLASSES = {
   info: "border-line bg-white",
-  warning: "border-amber-300 bg-amber-50",
-  critical: "border-red-300 bg-red-50",
+  warning: "border-butter-deep bg-butter-soft",
+  critical: "border-[#E3C6B6] bg-clay-soft",
 };
 
 export default function Notifications() {
@@ -35,12 +35,11 @@ export default function Notifications() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold">Alerts</h1>
-          <p className="text-sm text-muted">Things worth your attention.</p>
-        </div>
-        {items.some((item) => !item.is_read) && (
+      <PageHeader
+        eyebrow="Inbox"
+        title="Alerts"
+        note="Things worth your attention"
+        actions={items.some((item) => !item.is_read) && (
           <button
             type="button"
             className="btn-secondary text-sm"
@@ -49,7 +48,7 @@ export default function Notifications() {
             Mark all read
           </button>
         )}
-      </div>
+      />
 
       {items.length === 0 ? (
         <EmptyState
@@ -61,7 +60,7 @@ export default function Notifications() {
           {items.map((item) => (
             <li
               key={item.id}
-              className={`rounded-xl border p-3 ${
+              className={`rounded-[4px] border p-3 ${
                 LEVEL_CLASSES[item.level] || LEVEL_CLASSES.info
               } ${item.is_read ? "opacity-70" : ""}`}
             >

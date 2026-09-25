@@ -5,7 +5,7 @@ import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { dateTime, money, relative } from "@/lib/format";
 import {
-  Alert, EmptyState, Field, Modal, PageLoader, Spinner, StatusBadge,
+  Alert, BigNumber, EmptyState, Field, Modal, PageHeader, PageLoader, Spinner, StatusBadge,
 } from "@/components/ui";
 
 const COD_LABELS = {
@@ -16,10 +16,10 @@ const COD_LABELS = {
 };
 
 const COD_CLASSES = {
-  not_applicable: "bg-slate-100 text-slate-600 border-slate-200",
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
-  collected: "bg-blue-50 text-blue-700 border-blue-200",
-  settled: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  not_applicable: "bg-stone-100 text-stone-500 border-stone-200",
+  pending: "bg-butter-soft text-[#7A600E] border-butter-deep",
+  collected: "bg-[#E4ECF2] text-[#34506A] border-[#CAD8E4]",
+  settled: "bg-[#E4EEE2] text-ok border-[#C8DBC5]",
 };
 
 const MANUAL_STATUSES = [
@@ -76,16 +76,20 @@ export default function Delivery() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-lg font-semibold">Delivery</h1>
-        <p className="text-sm text-muted">Book parcels and follow them to the door.</p>
-      </div>
+      <PageHeader
+        tone="sand"
+        eyebrow="Logistics"
+        title="Delivery"
+        note="Book parcels and follow them to the door"
+        aside={<BigNumber value={pendingBooking.length} tone="text-olive/45" labelTone="text-olive"
+          label={pendingBooking.length === 1 ? "order waiting to be booked" : "orders waiting to be booked"} />}
+      />
 
       {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
 
       {can("book_shipments") && pendingBooking.length > 0 && (
         <section className="card p-4">
-          <h2 className="mb-3 text-sm font-semibold">
+          <h2 className="mb-3 section-title">
             Waiting to be booked ({pendingBooking.length})
           </h2>
           <ul className="divide-y divide-line">
@@ -93,7 +97,7 @@ export default function Delivery() {
               <li key={order.id} className="flex flex-wrap items-center gap-3 py-2">
                 <div className="min-w-0 flex-1">
                   <Link to={`/orders/${order.id}`}
-                    className="text-sm font-medium text-brand-700 hover:underline">
+                    className="text-sm font-medium link">
                     {order.order_number}
                   </Link>
                   <p className="truncate text-xs text-muted">
@@ -116,10 +120,10 @@ export default function Delivery() {
           ["", "All"],
         ].map(([value, label]) => (
           <button key={value} type="button" onClick={() => setFilter(value)}
-            className={`rounded-full border px-3 py-1 text-sm ${
+            className={`rounded-full border px-3.5 py-1 text-sm transition ${
               filter === value
-                ? "border-brand-600 bg-brand-50 font-medium text-brand-700"
-                : "border-line bg-white text-muted hover:text-ink"
+                ? "border-ink bg-ink text-paper"
+                : "border-line bg-white text-muted hover:border-ink/30 hover:text-ink"
             }`}>
             {label}
           </button>
@@ -130,9 +134,9 @@ export default function Delivery() {
         <EmptyState title="No shipments here"
           description="Book a confirmed order and it will show up." />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line bg-white">
+        <div className="overflow-hidden rounded-[4px] border border-line bg-white">
           <table className="w-full text-sm">
-            <thead className="border-b border-line bg-surface text-left text-xs uppercase tracking-wide text-muted">
+            <thead className="table-head">
               <tr>
                 <th className="px-4 py-2.5 font-medium">Consignment</th>
                 <th className="px-4 py-2.5 font-medium">Order</th>
@@ -154,7 +158,7 @@ export default function Delivery() {
                   </td>
                   <td className="px-4 py-2.5">
                     <Link to={`/orders/${shipment.order}`}
-                      className="text-brand-700 hover:underline">
+                      className="link">
                       {shipment.order_number}
                     </Link>
                     <p className="text-xs text-muted">{shipment.customer_name}</p>
@@ -178,7 +182,7 @@ export default function Delivery() {
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     {can("update_shipment_status") && !shipment.delivered_at && (
-                      <button type="button" className="text-sm text-brand-600 hover:underline"
+                      <button type="button" className="text-sm link"
                         onClick={() => setStatusFor(shipment)}>Update</button>
                     )}
                   </td>

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
-import { Alert, EmptyState, PageLoader, RiskBadge, StatusBadge } from "@/components/ui";
+import { Alert, BigNumber, EmptyState, PageHeader, PageLoader, RiskBadge, StatusBadge } from "@/components/ui";
 
 const FILTERS = [
   ["", "All"],
@@ -33,6 +33,14 @@ export default function Orders() {
     enabled: Boolean(storeId),
   });
 
+  const { data: stats } = useQuery({
+    queryKey: ["order-stats", storeId],
+    queryFn: async () => (await api.get("/orders/stats/")).data,
+    enabled: Boolean(storeId),
+  });
+
+  const shown = status ? stats?.by_status?.[status] ?? 0 : stats?.total ?? 0;
+
   function onSearch(event) {
     event.preventDefault();
     setQuery(search.trim());
@@ -42,32 +50,32 @@ export default function Orders() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold">Orders</h1>
-          <p className="text-sm text-muted">Confirm, track and ship.</p>
-        </div>
-        {can("manage_orders") && (
-          <Link to="/orders/new" className="btn-primary">+ New Order</Link>
+      <PageHeader
+        tone="white"
+        eyebrow="Order book"
+        title="Orders"
+        note="Confirm, track and ship"
+        aside={<BigNumber value={shown} tone="text-ink/25"
+          label={status ? "orders with this status" : "orders in total"} />}
+        actions={can("manage_orders") && (
+          <Link to="/orders/new" className="btn-primary">New order</Link>
         )}
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <form onSubmit={onSearch} className="flex flex-1 gap-2">
-          <input className="input" placeholder="Order number, name or phone"
+      >
+        <form onSubmit={onSearch} className="flex gap-2">
+          <input className="input bg-paper/60" placeholder="Order number, customer name or phone"
             value={search} onChange={(e) => setSearch(e.target.value)}
             aria-label="Search orders" />
-          <button type="submit" className="btn-secondary">Search</button>
+          <button type="submit" className="btn-dark">Search</button>
         </form>
-      </div>
+      </PageHeader>
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:px-0">
         {FILTERS.map(([value, label]) => (
           <button key={value} type="button" onClick={() => setStatus(value)}
-            className={`shrink-0 rounded-full border px-3 py-1 text-sm ${
+            className={`shrink-0 rounded-full border px-3.5 py-1 text-sm transition ${
               status === value
-                ? "border-brand-600 bg-brand-50 font-medium text-brand-700"
-                : "border-line bg-white text-muted hover:text-ink"
+                ? "border-ink bg-ink text-paper"
+                : "border-line bg-white text-muted hover:border-ink/30 hover:text-ink"
             }`}>
             {label}
           </button>
@@ -95,9 +103,9 @@ export default function Orders() {
 
       {orders.length > 0 && (
         <>
-          <div className="hidden overflow-hidden rounded-xl border border-line bg-white lg:block">
+          <div className="hidden overflow-hidden rounded-[4px] border border-line bg-white lg:block">
             <table className="w-full text-sm">
-              <thead className="border-b border-line bg-surface text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="table-head">
                 <tr>
                   <th className="px-4 py-2.5 font-medium">Order</th>
                   <th className="px-4 py-2.5 font-medium">Customer</th>
@@ -112,7 +120,7 @@ export default function Orders() {
                   <tr key={order.id} className="hover:bg-surface">
                     <td className="px-4 py-2.5">
                       <Link to={`/orders/${order.id}`}
-                        className="font-medium text-brand-700 hover:underline">
+                        className="font-medium link">
                         {order.order_number}
                       </Link>
                       <p className="text-xs text-muted">{order.item_count} item(s)</p>

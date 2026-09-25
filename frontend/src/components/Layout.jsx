@@ -18,6 +18,15 @@ const NAV = [
 
 const MOBILE_NAV = ["/dashboard", "/orders", "/products", "/customers", "/settings"];
 
+export function Logo({ className = "", tone = "text-ink" }) {
+  return (
+    <span className={`inline-flex items-baseline gap-1.5 ${tone} ${className}`}>
+      <span className="font-display text-[1.7rem] italic leading-none">ShopFlow</span>
+      <span className="text-[10px] font-medium uppercase tracking-eyebrow opacity-60">BD</span>
+    </span>
+  );
+}
+
 export default function Layout() {
   const { user, stores, storeId, selectStore, logout, can } = useAuth();
   const navigate = useNavigate();
@@ -39,6 +48,7 @@ export default function Layout() {
 
   const pending = stats?.by_status?.pending || 0;
   const visible = NAV.filter((item) => !item.cap || can(item.cap));
+  const storeName = stores.find((s) => s.store_id === storeId)?.store_name;
 
   async function handleLogout() {
     await logout();
@@ -47,13 +57,13 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen lg:flex">
-      <aside className="hidden w-56 shrink-0 border-r border-line bg-white lg:flex lg:flex-col">
-        <div className="px-5 py-4">
-          <p className="text-sm font-semibold">ShopFlow BD</p>
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-line bg-white lg:flex">
+        <div className="px-7 pb-6 pt-7">
+          <Logo />
         </div>
 
         {stores.length > 1 && (
-          <div className="px-3 pb-3">
+          <div className="px-7 pb-4">
             <select
               className="input text-xs"
               value={storeId || ""}
@@ -67,65 +77,72 @@ export default function Layout() {
           </div>
         )}
 
-        <nav className="flex-1 space-y-0.5 px-3">
+        <p className="eyebrow px-7 pb-2">Menu</p>
+        <nav className="flex-1 overflow-y-auto px-7">
           {visible.map((item) => (
             <NavLink key={item.to} to={item.to}
               className={({ isActive }) =>
-                `flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
-                  isActive
-                    ? "bg-brand-50 font-medium text-brand-700"
-                    : "text-ink hover:bg-surface"
+                `group flex items-center justify-between border-b border-line/70 py-[0.55rem] font-display text-[1.45rem] leading-tight tracking-tight transition ${
+                  isActive ? "text-ink" : "text-ink/35 hover:text-ink/70"
                 }`
               }>
-              <span>{item.label}</span>
-              {item.badge === "pending" && pending > 0 && (
-                <span className="rounded-full bg-amber-100 px-2 text-xs font-medium text-amber-700">
-                  {pending}
-                </span>
+              {({ isActive }) => (
+                <>
+                  <span>{isActive ? `{${item.label}}` : item.label}</span>
+                  {item.badge === "pending" && pending > 0 && (
+                    <span className="rounded-[3px] bg-butter px-1.5 font-sans text-[11px] font-medium text-ink">
+                      {pending}
+                    </span>
+                  )}
+                </>
               )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="border-t border-line p-3">
+        <div className="space-y-3 px-7 py-6">
           {can("manage_orders") && (
-            <NavLink to="/orders/new" className="btn-primary w-full text-sm">
-              + New Order
+            <NavLink to="/orders/new" className="btn-primary w-full">
+              New order
             </NavLink>
           )}
+          <p className="text-[11px] leading-relaxed text-muted">
+            Orders, couriers and cash on delivery, in one calm place.
+          </p>
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-white px-4 py-3">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold lg:hidden">ShopFlow BD</span>
-            <span className="hidden text-sm text-muted lg:inline">
-              {stores.find((s) => s.store_id === storeId)?.store_name}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-paper/85 px-4 py-3 backdrop-blur lg:px-10">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="lg:hidden"><Logo /></span>
+            <span className="hidden min-w-0 items-baseline gap-2 lg:flex">
+              <span className="eyebrow">Store</span>
+              <span className="truncate font-display text-xl">{storeName}</span>
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <NavLink to="/notifications" className="relative text-sm text-muted hover:text-ink">
-              Alerts
-              {unread?.unread > 0 && (
-                <span className="absolute -right-3 -top-1 rounded-full bg-danger px-1.5 text-[10px] font-medium text-white">
-                  {unread.unread}
-                </span>
-              )}
+            <NavLink to="/notifications"
+              className="rounded-[3px] border border-line bg-white px-3 py-1.5 text-xs text-ink transition hover:border-ink/40">
+              Alerts ({unread?.unread ?? 0})
             </NavLink>
 
             <div className="relative">
               <button type="button" onClick={() => setMenuOpen((v) => !v)}
-                className="text-sm text-ink hover:text-brand-600">
-                {user?.full_name?.split(" ")[0] || "Account"}
+                className="flex items-center gap-2 text-sm text-ink">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-olive font-display text-base text-paper">
+                  {(user?.full_name || user?.email || "A").trim().charAt(0).toUpperCase()}
+                </span>
+                <span className="hidden sm:inline">{user?.full_name?.split(" ")[0] || "Account"}</span>
               </button>
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-lg border border-line bg-white py-1 shadow-lg">
+                <div className="absolute right-0 mt-2 w-48 rounded-[4px] border border-line bg-white py-1 shadow-xl shadow-olive-deep/10">
+                  <p className="border-b border-line px-4 py-2 text-xs text-muted">{user?.email}</p>
                   <NavLink to="/settings" onClick={() => setMenuOpen(false)}
-                    className="block px-3 py-2 text-sm hover:bg-surface">Settings</NavLink>
+                    className="block px-4 py-2 text-sm hover:bg-paper">Settings</NavLink>
                   <button type="button" onClick={handleLogout}
-                    className="block w-full px-3 py-2 text-left text-sm text-danger hover:bg-surface">
+                    className="block w-full px-4 py-2 text-left text-sm text-danger hover:bg-paper">
                     Sign out
                   </button>
                 </div>
@@ -134,21 +151,28 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-24 pt-5 lg:px-6 lg:pb-8">
-          <Outlet />
+        <main className="flex-1 px-4 pb-28 pt-6 lg:px-10 lg:pb-12 lg:pt-8">
+          <div className="mx-auto w-full max-w-7xl">
+            <Outlet />
+          </div>
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-white lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-white/95 backdrop-blur lg:hidden">
           {visible
             .filter((item) => MOBILE_NAV.includes(item.to))
             .map((item) => (
               <NavLink key={item.to} to={item.to}
                 className={({ isActive }) =>
-                  `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${
-                    isActive ? "text-brand-700" : "text-muted"
+                  `relative flex flex-1 flex-col items-center py-3 text-[11px] tracking-wide ${
+                    isActive ? "font-medium text-ink" : "text-muted"
                   }`
                 }>
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="absolute inset-x-5 top-0 h-[3px] bg-butter-deep" />}
+                    {item.label}
+                  </>
+                )}
               </NavLink>
             ))}
         </nav>

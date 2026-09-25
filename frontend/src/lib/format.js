@@ -66,23 +66,23 @@ export const ORDER_STATUS_LABELS = {
 };
 
 export const ORDER_STATUS_CLASSES = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
-  confirmed: "bg-blue-50 text-blue-700 border-blue-200",
-  processing: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  ready_to_ship: "bg-violet-50 text-violet-700 border-violet-200",
-  shipped: "bg-cyan-50 text-cyan-700 border-cyan-200",
-  out_for_delivery: "bg-teal-50 text-teal-700 border-teal-200",
-  delivered: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  cancelled: "bg-slate-100 text-slate-600 border-slate-200",
-  returned: "bg-red-50 text-red-700 border-red-200",
-  on_hold: "bg-orange-50 text-orange-700 border-orange-200",
+  pending: "bg-butter-soft text-[#7A600E] border-butter-deep",
+  confirmed: "bg-sand text-olive-deep border-sand-deep",
+  processing: "bg-[#ECE8F1] text-[#4E4868] border-[#D8D2E4]",
+  ready_to_ship: "bg-[#E5EEEC] text-[#355953] border-[#C9DAD6]",
+  shipped: "bg-[#E4ECF2] text-[#34506A] border-[#CAD8E4]",
+  out_for_delivery: "bg-[#E9F0E2] text-[#4A6540] border-[#D2DFC6]",
+  delivered: "bg-[#E4EEE2] text-ok border-[#C8DBC5]",
+  cancelled: "bg-stone-100 text-stone-500 border-stone-200",
+  returned: "bg-clay-soft text-danger border-[#E3C6B6]",
+  on_hold: "bg-[#F6E8D6] text-warn border-[#EBD1B0]",
 };
 
 export const RISK_CLASSES = {
-  good: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  watch: "bg-amber-50 text-amber-700 border-amber-200",
-  high_risk: "bg-red-50 text-red-700 border-red-200",
-  blacklisted: "bg-slate-800 text-white border-slate-800",
+  good: "bg-[#E4EEE2] text-ok border-[#C8DBC5]",
+  watch: "bg-butter-soft text-[#7A600E] border-butter-deep",
+  high_risk: "bg-clay-soft text-danger border-[#E3C6B6]",
+  blacklisted: "bg-ink text-paper border-ink",
 };
 
 export const RISK_LABELS = {

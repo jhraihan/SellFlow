@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api, errorCode, errorMessage, fieldErrors } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money } from "@/lib/format";
-import { Alert, Field, RiskBadge, Spinner } from "@/components/ui";
+import { Alert, Field, PageHeader, RiskBadge, Spinner } from "@/components/ui";
 
 const DRAFT_KEY = "shopflow.order-draft";
 
@@ -224,16 +224,18 @@ export default function OrderNew() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 pb-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold">New order</h1>
-          <p className="text-sm text-muted">Your typing is saved as you go.</p>
-        </div>
-        <button type="button" className="btn-secondary text-sm"
-          onClick={() => { clearDraft(); setForm(EMPTY); setLines([]); setCustomer(null); }}>
-          Clear
-        </button>
-      </div>
+      <PageHeader
+        tone="sand"
+        eyebrow="From chat to courier"
+        title="New order"
+        note="Your typing is saved as you go"
+        actions={
+          <button type="button" className="btn-secondary text-sm"
+            onClick={() => { clearDraft(); setForm(EMPTY); setLines([]); setCustomer(null); }}>
+            Start over
+          </button>
+        }
+      />
 
       {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
 
@@ -250,8 +252,8 @@ export default function OrderNew() {
         </Alert>
       )}
 
-      <section className="card space-y-4 p-4">
-        <h2 className="text-sm font-semibold">Customer</h2>
+      <section className="card space-y-4 p-6">
+        <StepTitle number="01" title="Customer" />
 
         <Field label="Phone" required error={errors.phone}
           hint={
@@ -294,8 +296,8 @@ export default function OrderNew() {
         </Field>
       </section>
 
-      <section className="card space-y-3 p-4">
-        <h2 className="text-sm font-semibold">Items</h2>
+      <section className="card space-y-3 p-6">
+        <StepTitle number="02" title="Items" />
 
         <Field error={errors.items}>
           <select ref={productRef} className="input" value={picker}
@@ -342,8 +344,8 @@ export default function OrderNew() {
         )}
       </section>
 
-      <section className="card space-y-4 p-4">
-        <h2 className="text-sm font-semibold">Payment</h2>
+      <section className="card space-y-4 p-6">
+        <StepTitle number="03" title="Payment" />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Discount" error={errors.discount}>
@@ -386,10 +388,10 @@ export default function OrderNew() {
         </dl>
       </section>
 
-      <div className="sticky bottom-16 z-20 -mx-4 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:bottom-0 lg:mx-0 lg:rounded-xl lg:border lg:px-3">
+      <div className="sticky bottom-[3.4rem] z-20 -mx-4 bg-olive/95 px-4 py-3 backdrop-blur lg:bottom-4 lg:mx-0 lg:rounded-[4px] lg:px-3">
         <button type="button" onClick={() => submit(false)}
           disabled={submitting || lines.length === 0}
-          className="btn-primary w-full py-3 text-base shadow-lg">
+          className="btn-primary w-full py-3 text-base">
           {submitting && <Spinner className="h-4 w-4" />}
           Create order &middot; {money(cod)} COD
         </button>
@@ -397,9 +399,9 @@ export default function OrderNew() {
 
       {duplicate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-ink/40" onClick={() => setDuplicate(null)} />
-          <div className="relative z-10 w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
-            <h2 className="text-sm font-semibold">This might be a duplicate</h2>
+          <div className="absolute inset-0 bg-olive-deep/50 backdrop-blur-[2px]" onClick={() => setDuplicate(null)} />
+          <div className="relative z-10 w-full max-w-md rounded-[4px] bg-white p-5 shadow-xl">
+            <h2 className="section-title">This might be a duplicate</h2>
             <p className="mt-1 text-sm text-muted">
               This customer already has a recent open order with one of these products.
             </p>
@@ -431,6 +433,15 @@ function Row({ label, value }) {
     <div className="flex items-baseline justify-between">
       <dt className="text-muted">{label}</dt>
       <dd className="tabular-nums">{value}</dd>
+    </div>
+  );
+}
+
+function StepTitle({ number, title }) {
+  return (
+    <div className="flex items-baseline gap-3 border-b border-line pb-3">
+      <span className="font-display text-lg italic text-muted">{number}</span>
+      <h2 className="section-title">{title}</h2>
     </div>
   );
 }

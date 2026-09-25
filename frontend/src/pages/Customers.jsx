@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
-import { Alert, EmptyState, PageLoader, RiskBadge } from "@/components/ui";
+import { Alert, BigNumber, EmptyState, PageHeader, PageLoader, RiskBadge } from "@/components/ui";
 
 export default function Customers() {
   const { storeId } = useAuth();
@@ -20,10 +20,14 @@ export default function Customers() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-semibold">Customers</h1>
-        <p className="text-sm text-muted">Who buys, and who sends parcels back.</p>
-      </div>
+      <PageHeader
+        tone="sand"
+        eyebrow="People"
+        title="Customers"
+        note="Who buys, and who sends parcels back"
+        aside={<BigNumber value={data?.count ?? customers.length} tone="text-olive/40"
+          labelTone="text-olive" label="customers on record" />}
+      />
 
       {customers.length === 0 ? (
         <EmptyState
@@ -31,9 +35,9 @@ export default function Customers() {
           description="They are added automatically when you take an order."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line bg-white">
+        <div className="overflow-hidden rounded-[4px] border border-line bg-white">
           <table className="w-full text-sm">
-            <thead className="border-b border-line bg-surface text-left text-xs uppercase tracking-wide text-muted">
+            <thead className="table-head">
               <tr>
                 <th className="px-4 py-2.5 font-medium">Customer</th>
                 <th className="px-4 py-2.5 font-medium">Risk</th>

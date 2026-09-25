@@ -4,7 +4,7 @@ import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
 import {
-  Alert, EmptyState, Field, Modal, PageLoader, Spinner, StatCard,
+  Alert, BigNumber, EmptyState, Field, Modal, PageHeader, PageLoader, Spinner, StatCard,
 } from "@/components/ui";
 
 const MATCH_LABELS = {
@@ -46,16 +46,16 @@ export default function Payments() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold">Payments</h1>
-          <p className="text-sm text-muted">
-            Where your cash is, and what the courier still owes you.
-          </p>
-        </div>
-        <button type="button" className="btn-primary"
-          onClick={() => setUploadOpen(true)}>Upload statement</button>
-      </div>
+      <PageHeader
+        tone="olive"
+        eyebrow="Cash on delivery ledger"
+        title="Payments"
+        note="Where your cash is, and what the courier still owes you"
+        aside={<BigNumber value={money(ledger?.collected_unsettled?.amount)} tone="text-butter"
+          labelTone="text-paper/60" label="collected by couriers, not yet paid to you" />}
+        actions={<button type="button" className="btn-primary"
+          onClick={() => setUploadOpen(true)}>Upload statement</button>}
+      />
 
       {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
 
@@ -73,8 +73,8 @@ export default function Payments() {
       </section>
 
       {ledger?.shortfalls?.length > 0 && (
-        <section className="card border-red-200 p-4">
-          <h2 className="mb-1 text-sm font-semibold text-danger">
+        <section className="rounded-[4px] border border-[#E3C6B6] bg-clay-soft p-5">
+          <h2 className="mb-1 section-title text-danger">
             Courier paid less than expected
           </h2>
           <p className="mb-3 text-xs text-muted">
@@ -100,14 +100,14 @@ export default function Payments() {
       )}
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold">Courier statements</h2>
+        <h2 className="mb-3 section-title">Courier statements</h2>
         {rows.length === 0 ? (
           <EmptyState title="No statements uploaded"
             description="Upload the CSV your courier sends and we will match it to your shipments." />
         ) : (
-          <div className="overflow-hidden rounded-xl border border-line bg-white">
+          <div className="overflow-hidden rounded-[4px] border border-line bg-white">
             <table className="w-full text-sm">
-              <thead className="border-b border-line bg-surface text-left text-xs uppercase tracking-wide text-muted">
+              <thead className="table-head">
                 <tr>
                   <th className="px-4 py-2.5 font-medium">Statement</th>
                   <th className="px-4 py-2.5 font-medium">Courier</th>
@@ -144,14 +144,14 @@ export default function Payments() {
                     <td className="px-4 py-2.5">
                       <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs ${
                         row.status === "committed"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "border-amber-200 bg-amber-50 text-amber-700"
+                          ? "border-[#C8DBC5] bg-[#E4EEE2] text-ok"
+                          : "border-butter-deep bg-butter-soft text-[#7A600E]"
                       }`}>
                         {row.status}
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      <button type="button" className="text-sm text-brand-600 hover:underline"
+                      <button type="button" className="text-sm link"
                         onClick={() => setPreviewId(row.id)}>Review</button>
                     </td>
                   </tr>
@@ -301,7 +301,7 @@ function PreviewModal({ settlementId, onClose, onDone, onError }) {
 
           <div className="grid grid-cols-2 gap-2 text-sm">
             {Object.entries(MATCH_LABELS).map(([key, label]) => (
-              <div key={key} className="rounded-lg border border-line px-3 py-2">
+              <div key={key} className="rounded-[3px] border border-line px-3 py-2">
                 <p className="text-xs text-muted">{label}</p>
                 <p className="text-lg font-semibold tabular-nums">
                   {counts[key] || 0}

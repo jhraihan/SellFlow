@@ -27,7 +27,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <AuthShell title="Choose a new password">
+    <AuthShell eyebrow="Account" title="Choose a new password">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         {failure && (
           <Alert>

@@ -35,7 +35,7 @@ export default function Register() {
   }
 
   return (
-    <AuthShell title="Create your account" subtitle="Free for your first 50 orders a month.">
+    <AuthShell eyebrow="New store" title="Create your account" subtitle="Free for your first 50 orders a month.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         {failure && <Alert>{failure}</Alert>}
 
@@ -78,7 +78,7 @@ export default function Register() {
 
         <p className="text-center text-sm text-muted">
           Already registered?{" "}
-          <Link to="/login" className="text-brand-600 hover:underline">Sign in</Link>
+          <Link to="/login" className="link">Sign in</Link>
         </p>
       </form>
     </AuthShell>

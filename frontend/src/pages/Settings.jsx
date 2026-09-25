@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { dateOnly, money } from "@/lib/format";
-import { Alert, Field, Modal, PageLoader, Spinner } from "@/components/ui";
+import { Alert, Field, Modal, PageHeader, PageLoader, Spinner } from "@/components/ui";
 
 const TABS = [
   ["store", "Store"],
@@ -35,33 +35,37 @@ export default function Settings() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
-      <div>
-        <h1 className="text-lg font-semibold">Settings</h1>
-        <p className="text-sm text-muted">How your store runs.</p>
+    <div className="space-y-6">
+      <PageHeader eyebrow="Configuration" title="Settings" note="How your store runs" />
+
+      <div className="grid grid-cols-1 gap-8 rounded-[4px] border border-line bg-white p-5 lg:grid-cols-[17rem_1fr] lg:p-10">
+        <nav aria-label="Settings sections" className="min-w-0">
+          <p className="eyebrow mb-3">Sections</p>
+          <ul className="flex gap-2 overflow-x-auto lg:block">
+            {visible.map(([key, label]) => (
+              <li key={key} className="shrink-0 lg:border-b lg:border-line">
+                <button type="button" onClick={() => setTab(key)}
+                  className={`w-full py-1 pr-4 text-left font-display text-3xl leading-tight tracking-tight transition lg:py-2.5 lg:text-[2.6rem] ${
+                    tab === key ? "text-ink" : "text-ink/25 hover:text-ink/55"
+                  }`}>
+                  {tab === key ? `{${label}}` : label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="min-w-0 space-y-4">
+          {notice && <Alert tone="ok" onDismiss={() => setNotice("")}>{notice}</Alert>}
+          {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
+
+          {tab === "store" && <StoreTab onSaved={setNotice} onError={setFailure} />}
+          {tab === "delivery" && <DeliveryTab onSaved={setNotice} onError={setFailure} />}
+          {tab === "couriers" && <CouriersTab onSaved={setNotice} onError={setFailure} />}
+          {tab === "staff" && <StaffTab onSaved={setNotice} onError={setFailure} />}
+          {tab === "plan" && <PlanTab onSaved={setNotice} onError={setFailure} />}
+        </div>
       </div>
-
-      {notice && <Alert tone="ok" onDismiss={() => setNotice("")}>{notice}</Alert>}
-      {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
-
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
-        {visible.map(([key, label]) => (
-          <button key={key} type="button" onClick={() => setTab(key)}
-            className={`shrink-0 rounded-full border px-3 py-1 text-sm ${
-              tab === key
-                ? "border-brand-600 bg-brand-50 font-medium text-brand-700"
-                : "border-line bg-white text-muted hover:text-ink"
-            }`}>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "store" && <StoreTab onSaved={setNotice} onError={setFailure} />}
-      {tab === "delivery" && <DeliveryTab onSaved={setNotice} onError={setFailure} />}
-      {tab === "couriers" && <CouriersTab onSaved={setNotice} onError={setFailure} />}
-      {tab === "staff" && <StaffTab onSaved={setNotice} onError={setFailure} />}
-      {tab === "plan" && <PlanTab onSaved={setNotice} onError={setFailure} />}
     </div>
   );
 }
@@ -100,7 +104,7 @@ function StoreTab({ onSaved, onError }) {
   const editable = can("manage_settings");
 
   return (
-    <section className="card space-y-4 p-4">
+    <section className="space-y-5">
       <Field label="Store name">
         <input className="input" value={current.name} disabled={!editable}
           onChange={(e) => setForm({ ...current, name: e.target.value })} />
@@ -170,7 +174,7 @@ function DeliveryTab({ onSaved, onError }) {
   if (!current) return <PageLoader label="Loading settings" />;
 
   return (
-    <section className="card space-y-4 p-4">
+    <section className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Inside Dhaka">
           <input className="input" inputMode="decimal"
@@ -422,7 +426,7 @@ function StaffTab({ onSaved, onError }) {
 
       {pending.length > 0 && (
         <div className="card p-4">
-          <h2 className="mb-2 text-sm font-semibold">Pending invitations</h2>
+          <h2 className="mb-2 section-title">Pending invitations</h2>
           <ul className="space-y-1 text-sm">
             {pending.map((invite) => (
               <li key={invite.id} className="flex justify-between">
@@ -524,7 +528,7 @@ function PlanTab({ onSaved, onError }) {
   return (
     <section className="space-y-4">
       <div className="card p-4">
-        <h2 className="text-sm font-semibold">
+        <h2 className="section-title">
           You are on {subscription?.plan?.name}
         </h2>
         {subscription?.plan?.order_limit ? (
@@ -538,7 +542,7 @@ function PlanTab({ onSaved, onError }) {
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface">
               <div className={`h-full rounded-full ${
                 subscription.is_over_limit ? "bg-danger"
-                  : subscription.is_near_limit ? "bg-warn" : "bg-brand-600"
+                  : subscription.is_near_limit ? "bg-warn" : "bg-olive"
               }`} style={{
                 width: `${Math.min(Number(subscription.usage_percent), 100)}%`,
               }} />

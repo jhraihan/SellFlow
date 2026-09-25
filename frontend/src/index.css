@@ -7,40 +7,72 @@
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-surface text-ink antialiased;
+    @apply bg-paper text-ink antialiased;
     font-feature-settings: "tnum";
+  }
+  ::selection {
+    @apply bg-butter text-ink;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] px-4 py-2
            text-sm font-medium transition focus:outline-none
-           focus-visible:ring-2 focus-visible:ring-brand-500
-           focus-visible:ring-offset-2 disabled:opacity-50
-           disabled:cursor-not-allowed;
+           focus-visible:ring-2 focus-visible:ring-olive
+           focus-visible:ring-offset-2 focus-visible:ring-offset-paper
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-butter text-ink hover:bg-butter-deep;
+  }
+  .btn-dark {
+    @apply btn bg-olive text-paper hover:bg-olive-deep;
   }
   .btn-secondary {
-    @apply btn border border-line bg-white text-ink hover:bg-surface;
+    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/40;
   }
   .btn-danger {
     @apply btn bg-danger text-white hover:opacity-90;
   }
   .input {
-    @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm
-           placeholder:text-muted focus:border-brand-500 focus:outline-none
-           focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-[3px] border border-line bg-white px-3 py-2 text-sm
+           transition placeholder:text-muted/80 focus:border-olive
+           focus:outline-none focus:ring-2 focus:ring-butter/70;
   }
   .label {
-    @apply mb-1 block text-sm font-medium text-ink;
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-muted;
   }
   .card {
-    @apply rounded-xl border border-line bg-white;
+    @apply rounded-[4px] border border-line bg-white;
   }
   .field-error {
     @apply mt-1 text-xs text-danger;
+  }
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-eyebrow text-muted;
+  }
+  .display {
+    @apply font-display font-normal tracking-tight;
+  }
+  .link {
+    @apply text-ink underline decoration-ink/25 underline-offset-4 transition
+           hover:decoration-ink;
+  }
+  .section-title {
+    @apply font-display text-2xl font-normal leading-tight tracking-tight;
+  }
+  .table-head {
+    @apply border-b border-line bg-paper/60 text-left text-[11px] uppercase
+           tracking-[0.14em] text-muted;
+  }
+  .pill {
+    @apply shrink-0 rounded-full border px-3.5 py-1 text-sm transition;
+  }
+  .pill-on {
+    @apply pill border-ink bg-ink text-paper;
+  }
+  .pill-off {
+    @apply pill border-line bg-white text-muted hover:border-ink/30 hover:text-ink;
   }
 }

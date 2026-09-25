@@ -5,7 +5,7 @@ import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
 import {
-  Alert, EmptyState, Field, Modal, PageLoader, Spinner,
+  Alert, BigNumber, EmptyState, Field, Figure, Modal, PageHeader, PageLoader, Spinner,
 } from "@/components/ui";
 
 const REASONS = [
@@ -20,9 +20,9 @@ const REASONS = [
 ];
 
 const STATUS_CLASSES = {
-  initiated: "bg-amber-50 text-amber-700 border-amber-200",
-  received: "bg-blue-50 text-blue-700 border-blue-200",
-  resolved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  initiated: "bg-butter-soft text-[#7A600E] border-butter-deep",
+  received: "bg-[#E4ECF2] text-[#34506A] border-[#CAD8E4]",
+  resolved: "bg-[#E4EEE2] text-ok border-[#C8DBC5]",
 };
 
 export default function Returns() {
@@ -63,16 +63,18 @@ export default function Returns() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold">Returns</h1>
-          <p className="text-sm text-muted">What came back, and what it cost.</p>
-        </div>
-        {can("record_returns") && (
-          <button type="button" className="btn-primary"
-            onClick={() => setOpenFor(true)}>+ Record return</button>
+      <PageHeader
+        tone="clay"
+        eyebrow="Reverse logistics"
+        title="Returns"
+        note="What came back, and what it cost"
+        aside={<BigNumber value={analytics?.total_returns ?? returns.length} tone="text-clay/60"
+          labelTone="text-[#8A6446]" label="parcels came back" />}
+        actions={can("record_returns") && (
+          <button type="button" className="btn-dark"
+            onClick={() => setOpenFor(true)}>Record a return</button>
         )}
-      </div>
+      />
 
       {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
 
@@ -90,9 +92,9 @@ export default function Returns() {
         <EmptyState title="No returns yet"
           description="Parcels that come back are recorded here with their real cost." />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line bg-white">
+        <div className="overflow-hidden rounded-[4px] border border-line bg-white">
           <table className="w-full text-sm">
-            <thead className="border-b border-line bg-surface text-left text-xs uppercase tracking-wide text-muted">
+            <thead className="table-head">
               <tr>
                 <th className="px-4 py-2.5 font-medium">Order</th>
                 <th className="px-4 py-2.5 font-medium">Reason</th>
@@ -107,7 +109,7 @@ export default function Returns() {
                 <tr key={row.id} className="hover:bg-surface">
                   <td className="px-4 py-2.5">
                     <Link to={`/orders/${row.order}`}
-                      className="font-medium text-brand-700 hover:underline">
+                      className="font-medium link">
                       {row.order_number}
                     </Link>
                     <p className="text-xs text-muted">{row.customer_name}</p>
@@ -128,11 +130,11 @@ export default function Returns() {
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     {can("record_returns") && row.status === "initiated" && (
-                      <button type="button" className="text-sm text-brand-600 hover:underline"
+                      <button type="button" className="text-sm link"
                         onClick={() => receive.mutate(row.id)}>Mark received</button>
                     )}
                     {can("record_returns") && row.status === "received" && (
-                      <button type="button" className="text-sm text-brand-600 hover:underline"
+                      <button type="button" className="text-sm link"
                         onClick={() => setResolveFor(row)}>Resolve</button>
                     )}
                   </td>
@@ -145,7 +147,7 @@ export default function Returns() {
 
       {analytics?.by_reason?.length > 0 && (
         <section className="card p-4">
-          <h2 className="mb-3 text-sm font-semibold">Why parcels come back</h2>
+          <h2 className="mb-3 section-title">Why parcels come back</h2>
           <ul className="space-y-1.5 text-sm">
             {analytics.by_reason.map((row) => {
               const label = REASONS.find(([v]) => v === row.reason)?.[1] || row.reason;
@@ -171,11 +173,11 @@ export default function Returns() {
 
 function Stat({ label, value, tone }) {
   return (
-    <div className="card p-3">
-      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-      <p className={`mt-1 text-xl font-semibold tabular-nums ${
+    <div className="card p-5">
+      <p className="eyebrow">{label}</p>
+      <p className={`mt-5 font-display text-4xl leading-none tabular-nums ${
         tone === "danger" ? "text-danger" : ""
-      }`}>{value}</p>
+      }`}><Figure value={value} /></p>
     </div>
   );
 }
@@ -300,7 +302,7 @@ function ResolveModal({ record, onClose, onDone, onError }) {
           <ul className="space-y-2">
             {items.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3
-                                           rounded-lg border border-line px-3 py-2">
+                                           rounded-[3px] border border-line px-3 py-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm">{item.product_name}</p>
                   <p className="text-xs text-muted">Qty {item.quantity}</p>

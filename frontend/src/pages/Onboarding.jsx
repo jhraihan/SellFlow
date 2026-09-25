@@ -42,7 +42,7 @@ export default function Onboarding() {
   }
 
   return (
-    <AuthShell title="Set up your store" subtitle="You can change any of this later.">
+    <AuthShell eyebrow="Almost there" title="Set up your store" subtitle="You can change any of this later.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         {failure && <Alert>{failure}</Alert>}
 

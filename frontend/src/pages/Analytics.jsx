@@ -6,7 +6,7 @@ import {
 import { api, downloadFile } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, moneyShort } from "@/lib/format";
-import { Alert, EmptyState, PageLoader, StatCard } from "@/components/ui";
+import { Alert, BigNumber, EmptyState, Figure, PageHeader, PageLoader, StatCard } from "@/components/ui";
 
 const RANGES = [
   ["7", "7 days"],
@@ -69,26 +69,28 @@ export default function Analytics() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold">Analytics</h1>
-          <p className="text-sm text-muted">
-            Revenue counts on delivery, never on the order.
-          </p>
-        </div>
+      <PageHeader
+        tone="butter"
+        eyebrow="Reports"
+        title="Analytics"
+        note="Revenue counts on delivery, never on the order"
+        aside={<BigNumber value={money(profit?.net_profit)}
+          tone={Number(profit?.net_profit) >= 0 ? "text-ink" : "text-danger"}
+          labelTone="text-ink/60" label={`net profit, last ${days} days`} />}
+      >
         <div className="flex gap-2">
           {RANGES.map(([value, label]) => (
             <button key={value} type="button" onClick={() => setDays(value)}
-              className={`rounded-full border px-3 py-1 text-sm ${
+              className={`rounded-full border px-3.5 py-1 text-sm transition ${
                 days === value
-                  ? "border-brand-600 bg-brand-50 font-medium text-brand-700"
-                  : "border-line bg-white text-muted hover:text-ink"
+                  ? "border-ink bg-ink text-butter"
+                  : "border-ink/20 text-ink/70 hover:border-ink/50 hover:text-ink"
               }`}>
               {label}
             </button>
           ))}
         </div>
-      </div>
+      </PageHeader>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Net sales" value={money(profit?.net_sales)}
@@ -102,9 +104,18 @@ export default function Analytics() {
           sub={`${profit?.return_breakdown?.count ?? 0} returns`} />
       </section>
 
-      <section className="card p-4">
-        <h2 className="mb-3 text-sm font-semibold">How the profit is worked out</h2>
-        <dl className="space-y-1.5 text-sm">
+      <section className="card grid gap-8 p-6 lg:grid-cols-[1fr_1.4fr] lg:p-8">
+        <div>
+          <p className="eyebrow">Profit statement</p>
+          <h2 className="mt-2 font-display text-4xl leading-none tracking-tight">
+            How the profit is worked out
+          </h2>
+          <p className="mt-4 max-w-xs text-sm text-muted">
+            Every figure comes from delivered orders in the period, after what the couriers
+            charged and what came back.
+          </p>
+        </div>
+        <dl className="space-y-2 text-sm">
           <Row label="Gross sales" value={money(profit?.gross_sales)} />
           <Row label="Discounts given" value={`- ${money(profit?.discounts)}`} />
           <Row label="Net sales" value={money(profit?.net_sales)} strong />
@@ -116,30 +127,30 @@ export default function Analytics() {
           <Row label="Lost to returns" value={`- ${money(profit?.return_loss)}`} />
           <Row label="Operating expenses"
             value={`- ${money(profit?.operating_expenses)}`} />
-          <div className="flex items-baseline justify-between border-t border-line pt-2">
-            <dt className="font-semibold">Net profit</dt>
-            <dd className={`text-lg font-semibold tabular-nums ${
+          <div className="flex items-baseline justify-between border-t-2 border-ink pt-3">
+            <dt className="font-display text-2xl">Net profit</dt>
+            <dd className={`font-display text-4xl tabular-nums ${
               Number(profit?.net_profit) >= 0 ? "text-ok" : "text-danger"
-            }`}>{money(profit?.net_profit)}</dd>
+            }`}><Figure value={money(profit?.net_profit)} /></dd>
           </div>
         </dl>
       </section>
 
       {chartData.length > 0 && (
         <section className="card p-4">
-          <h2 className="mb-3 text-sm font-semibold">Margin by product</h2>
+          <h2 className="mb-3 section-title">Margin by product</h2>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#EEE9DF" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }}
                   tickLine={false} axisLine={false} interval={0} angle={-20}
                   textAnchor="end" height={50} />
                 <YAxis tickFormatter={moneyShort} tick={{ fontSize: 11 }}
                   tickLine={false} axisLine={false} width={60} />
                 <Tooltip formatter={(value) => money(value)}
-                  contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E2E8F0" }} />
-                <Bar dataKey="margin" fill="#2563EB" radius={[4, 4, 0, 0]} />
+                  contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E4DED2" }} />
+                <Bar dataKey="margin" fill="#B98C66" radius={[2, 2, 0, 0]} maxBarSize={56} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -199,20 +210,20 @@ export default function Analytics() {
 
 function Row({ label, value, strong }) {
   return (
-    <div className="flex items-baseline justify-between">
-      <dt className={strong ? "font-medium" : "text-muted"}>{label}</dt>
-      <dd className={`tabular-nums ${strong ? "font-medium" : ""}`}>{value}</dd>
+    <div className={`flex items-baseline justify-between ${strong ? "border-t border-line pt-2" : ""}`}>
+      <dt className={strong ? "font-display text-lg" : "text-muted"}>{label}</dt>
+      <dd className={`tabular-nums ${strong ? "font-display text-lg" : ""}`}>{value}</dd>
     </div>
   );
 }
 
 function Panel({ title, rows, render, empty, exportKey }) {
   return (
-    <section className="card p-4">
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold">{title}</h2>
+    <section className="card p-5">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="section-title">{title}</h2>
         {rows.length > 0 && (
-          <button type="button" className="text-xs text-brand-600 hover:underline"
+          <button type="button" className="text-xs link"
             onClick={() => downloadFile(`/analytics/export/?report=${exportKey}`,
               `${exportKey}-report.csv`)}>
             Export CSV

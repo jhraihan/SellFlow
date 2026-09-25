@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <AuthShell title="Reset your password">
+    <AuthShell eyebrow="Account" title="Reset your password">
       {sent ? (
         <div className="space-y-4">
           <Alert tone="ok" title="Check your email">
@@ -42,7 +42,7 @@ export default function ForgotPassword() {
             Send reset link
           </button>
           <p className="text-center text-sm">
-            <Link to="/login" className="text-brand-600 hover:underline">Back to sign in</Link>
+            <Link to="/login" className="link">Back to sign in</Link>
           </p>
         </form>
       )}
