@@ -3,14 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { dateOnly, money } from "@/lib/format";
+import { Coins, Settings2, Sparkles, Store, Truck, Users } from "lucide-react";
 import { Alert, Field, Modal, PageHeader, PageLoader, Spinner } from "@/components/ui";
 
 const TABS = [
-  ["store", "Store"],
-  ["delivery", "Delivery charges"],
-  ["couriers", "Couriers"],
-  ["staff", "Staff"],
-  ["plan", "Plan"],
+  ["store", "Store", "Name, contact and address", Store],
+  ["delivery", "Delivery charges", "What customers pay per zone", Coins],
+  ["couriers", "Couriers", "Accounts and API keys", Truck],
+  ["staff", "Staff", "Who can do what", Users],
+  ["plan", "Plan", "Usage and upgrades", Sparkles],
 ];
 
 const ROLES = [
@@ -36,26 +37,35 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Configuration" title="Settings" note="How your store runs" />
+      <PageHeader icon={Settings2} eyebrow="Configuration" title="Settings" note="How your store runs, from delivery charges to who can see profit." />
 
-      <div className="grid grid-cols-1 gap-8 rounded-[4px] border border-line bg-white p-5 lg:grid-cols-[17rem_1fr] lg:p-10">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[18rem_1fr]">
         <nav aria-label="Settings sections" className="min-w-0">
-          <p className="eyebrow mb-3">Sections</p>
-          <ul className="flex gap-2 overflow-x-auto lg:block">
-            {visible.map(([key, label]) => (
-              <li key={key} className="shrink-0 lg:border-b lg:border-line">
+          <ul className="flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1.5 lg:overflow-visible lg:pb-0">
+            {visible.map(([key, label, hint, Icon]) => (
+              <li key={key} className="shrink-0">
                 <button type="button" onClick={() => setTab(key)}
-                  className={`w-full py-1 pr-4 text-left font-display text-3xl leading-tight tracking-tight transition lg:py-2.5 lg:text-[2.6rem] ${
-                    tab === key ? "text-ink" : "text-ink/25 hover:text-ink/55"
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition lg:py-3 ${
+                    tab === key
+                      ? "bg-ink text-paper shadow-lift"
+                      : "bg-white text-ink shadow-soft ring-1 ring-line/80 hover:ring-ink/20"
                   }`}>
-                  {tab === key ? `{${label}}` : label}
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                    tab === key ? "bg-butter text-ink" : "bg-paper text-olive"
+                  }`}>
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block whitespace-nowrap text-sm font-bold">{label}</span>
+                    <span className={`hidden text-xs lg:block ${tab === key ? "text-paper/60" : "text-muted"}`}>{hint}</span>
+                  </span>
                 </button>
               </li>
             ))}
           </ul>
         </nav>
 
-        <div className="min-w-0 space-y-4">
+        <div className="card min-w-0 space-y-4 p-5 lg:p-8">
           {notice && <Alert tone="ok" onDismiss={() => setNotice("")}>{notice}</Alert>}
           {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
 

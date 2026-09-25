@@ -1,3 +1,4 @@
+import { Inbox } from "lucide-react";
 import { ORDER_STATUS_CLASSES, ORDER_STATUS_LABELS, RISK_CLASSES, RISK_LABELS } from "@/lib/format";
 
 export function Spinner({ className = "h-5 w-5" }) {
@@ -10,81 +11,88 @@ export function Spinner({ className = "h-5 w-5" }) {
   );
 }
 
-export function Brace({ children, className = "" }) {
-  return (
-    <span className={`font-display italic ${className}`}>
-      {"{"}{children}{"}"}
-    </span>
-  );
-}
-
 export function PageLoader({ label = "Loading" }) {
   return (
-    <div className="flex items-center justify-center gap-3 py-20 text-muted">
-      <Spinner className="h-4 w-4" />
-      <span className="font-display text-xl italic">{label}...</span>
+    <div className="flex items-center justify-center gap-3 py-24 text-muted">
+      <Spinner className="h-4 w-4 text-olive" />
+      <span className="text-sm font-medium">{label}...</span>
     </div>
   );
 }
 
 const HEADER_TONES = {
   plain: {
-    box: "pb-2",
+    box: "",
     eyebrow: "text-muted",
+    dot: "bg-butter-deep",
     title: "text-ink",
     note: "text-muted",
+    glow: null,
   },
   white: {
-    box: "border border-line bg-white px-6 py-8 lg:px-10 lg:py-10",
+    box: "border border-line/80 bg-white shadow-soft px-6 py-7 lg:px-9 lg:py-9",
     eyebrow: "text-muted",
+    dot: "bg-butter-deep",
     title: "text-ink",
     note: "text-muted",
+    glow: "bg-butter/40",
   },
   butter: {
-    box: "bg-butter px-6 py-8 lg:px-10 lg:py-10",
-    eyebrow: "text-ink/50",
+    box: "bg-butter px-6 py-7 lg:px-9 lg:py-9",
+    eyebrow: "text-ink/55",
+    dot: "bg-ink",
     title: "text-ink",
-    note: "text-ink/60",
+    note: "text-ink/65",
+    glow: "bg-white/50",
   },
   olive: {
-    box: "bg-olive px-6 py-8 text-paper lg:px-10 lg:py-10",
-    eyebrow: "text-paper/55",
+    box: "bg-gradient-to-br from-olive to-olive-deep px-6 py-7 text-paper lg:px-9 lg:py-9",
+    eyebrow: "text-paper/60",
+    dot: "bg-butter",
     title: "text-paper",
-    note: "text-paper/65",
+    note: "text-paper/70",
+    glow: "bg-butter/25",
   },
   sand: {
-    box: "bg-sand px-6 py-8 lg:px-10 lg:py-10",
-    eyebrow: "text-olive/70",
+    box: "bg-sand px-6 py-7 lg:px-9 lg:py-9",
+    eyebrow: "text-olive/75",
+    dot: "bg-olive",
     title: "text-ink",
     note: "text-olive",
+    glow: "bg-white/60",
   },
   clay: {
-    box: "bg-clay-soft px-6 py-8 lg:px-10 lg:py-10",
-    eyebrow: "text-clay",
+    box: "bg-clay-soft px-6 py-7 lg:px-9 lg:py-9",
+    eyebrow: "text-[#8A6446]",
+    dot: "bg-clay",
     title: "text-ink",
     note: "text-[#8A6446]",
+    glow: "bg-white/60",
   },
 };
 
-export function PageHeader({ eyebrow, title, note, actions, aside, tone = "plain", children }) {
+export function PageHeader({ eyebrow, title, note, actions, aside, tone = "plain", icon: Icon, children }) {
   const t = HEADER_TONES[tone] || HEADER_TONES.plain;
   return (
-    <header className={`rounded-[4px] ${t.box}`}>
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <header className={`relative ${t.box ? "overflow-hidden rounded-3xl" : ""} ${t.box}`}>
+      {t.glow && (
+        <>
+          <span className={`pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full blur-3xl ${t.glow}`} />
+          <span className={`pointer-events-none absolute -bottom-28 right-1/3 h-48 w-48 rounded-full blur-3xl ${t.glow}`} />
+        </>
+      )}
+      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           {eyebrow && (
-            <p className={`text-[11px] font-medium uppercase tracking-eyebrow ${t.eyebrow}`}>
+            <p className={`flex items-center gap-2 text-[11px] font-bold uppercase tracking-eyebrow ${t.eyebrow}`}>
+              {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={2.5} /> : <span className={`h-1.5 w-1.5 rounded-full ${t.dot}`} />}
               {eyebrow}
             </p>
           )}
-          <h1 className={`mt-2 font-display text-[2.6rem] font-normal leading-[0.95] tracking-tight lg:text-6xl ${t.title}`}>
+          <h1 className={`mt-3 text-[2rem] font-extrabold leading-[1.05] tracking-[-0.035em] lg:text-[2.75rem] ${t.title}`}>
             {title}
           </h1>
-          {note && (
-            <p className={`mt-3 font-display text-xl italic lg:text-2xl ${t.note}`}>
-              {"{"}{note}{"}"}
-            </p>
-          )}
+          {note && <p className={`mt-2 max-w-xl text-[15px] font-medium ${t.note}`}>{note}</p>}
         </div>
         {(aside || actions) && (
           <div className="flex flex-col items-start gap-4 lg:items-end">
@@ -93,7 +101,7 @@ export function PageHeader({ eyebrow, title, note, actions, aside, tone = "plain
           </div>
         )}
       </div>
-      {children && <div className="mt-6">{children}</div>}
+      {children && <div className="relative mt-6">{children}</div>}
     </header>
   );
 }
@@ -102,7 +110,7 @@ export function Figure({ value }) {
   if (typeof value === "string" && value.startsWith("৳")) {
     return (
       <span className="whitespace-nowrap">
-        <span className="mr-[0.12em] align-[0.35em] font-sans text-[0.42em] font-normal opacity-60">
+        <span className="mr-[0.15em] align-[0.3em] text-[0.5em] font-semibold opacity-55">
           {"৳"}
         </span>
         {value.slice(1).trim()}
@@ -114,9 +122,11 @@ export function Figure({ value }) {
 
 export function BigNumber({ value, label, tone = "text-ink", labelTone = "text-muted" }) {
   return (
-    <div>
-      <p className={`font-display text-6xl leading-none tabular-nums lg:text-7xl ${tone}`}><Figure value={value} /></p>
-      {label && <p className={`mt-2 text-xs ${labelTone}`}>{label}</p>}
+    <div className="lg:text-right">
+      <p className={`text-5xl font-extrabold leading-none tracking-[-0.04em] tabular-nums lg:text-6xl ${tone}`}>
+        <Figure value={value} />
+      </p>
+      {label && <p className={`mt-2 text-xs font-medium ${labelTone}`}>{label}</p>}
     </div>
   );
 }
@@ -124,7 +134,8 @@ export function BigNumber({ value, label, tone = "text-ink", labelTone = "text-m
 export function StatusBadge({ status }) {
   const cls = ORDER_STATUS_CLASSES[status] || "bg-stone-100 text-stone-500 border-stone-200";
   return (
-    <span className={`inline-flex whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide ${cls}`}>
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${cls}`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
       {ORDER_STATUS_LABELS[status] || status}
     </span>
   );
@@ -134,7 +145,7 @@ export function RiskBadge({ level }) {
   if (!level) return null;
   const cls = RISK_CLASSES[level] || RISK_CLASSES.good;
   return (
-    <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium tracking-wide ${cls}`}>
+    <span className={`inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold ${cls}`}>
       {RISK_LABELS[level] || level}
     </span>
   );
@@ -148,10 +159,10 @@ export function Alert({ tone = "danger", title, children, onDismiss }) {
     info: "border-sand-deep bg-sand text-olive-deep",
   };
   return (
-    <div className={`rounded-[4px] border px-4 py-3 text-sm ${tones[tone]}`} role="alert">
+    <div className={`rounded-xl border px-4 py-3 text-sm ${tones[tone]}`} role="alert">
       <div className="flex items-start justify-between gap-3">
         <div>
-          {title && <p className="font-medium">{title}</p>}
+          {title && <p className="font-bold">{title}</p>}
           {children && <div className={title ? "mt-0.5" : ""}>{children}</div>}
         </div>
         {onDismiss && (
@@ -165,11 +176,14 @@ export function Alert({ tone = "danger", title, children, onDismiss }) {
   );
 }
 
-export function EmptyState({ title, description, action }) {
+export function EmptyState({ title, description, action, icon: Icon = Inbox }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[4px] border border-dashed border-sand-deep bg-white/60 px-6 py-16 text-center">
-      <h3 className="font-display text-3xl font-normal tracking-tight text-ink">{title}</h3>
-      {description && <p className="mt-2 max-w-sm text-sm text-muted">{description}</p>}
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-sand-deep bg-white/70 px-6 py-16 text-center">
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-butter-soft text-olive-deep ring-8 ring-butter-soft/40">
+        <Icon className="h-6 w-6" strokeWidth={1.75} />
+      </span>
+      <h3 className="mt-5 text-xl font-bold tracking-tight text-ink">{title}</h3>
+      {description && <p className="mt-1.5 max-w-sm text-sm text-muted">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
@@ -191,52 +205,73 @@ export function Field({ label, error, hint, required, children }) {
   );
 }
 
-export function StatCard({ label, value, sub, tone, surface = "white" }) {
+const ACCENTS = {
+  butter: "bg-butter text-ink",
+  olive: "bg-olive text-paper",
+  sage: "bg-[#DDEAD9] text-ok",
+  clay: "bg-clay-soft text-danger",
+  sky: "bg-[#E1EAF2] text-[#34506A]",
+  sand: "bg-sand text-olive-deep",
+};
+
+export function StatCard({ label, value, sub, tone, icon: Icon, accent = "sand", surface = "white" }) {
   const tones = {
     ok: "text-ok",
     warn: "text-warn",
     danger: "text-danger",
   };
   const surfaces = {
-    white: "border border-line bg-white",
+    white: "border border-line/80 bg-white shadow-soft",
     butter: "bg-butter",
     sand: "bg-sand",
     olive: "bg-olive text-paper",
   };
   const onDark = surface === "olive";
   return (
-    <div className={`flex min-w-0 flex-col justify-between rounded-[4px] p-5 ${surfaces[surface]}`}>
-      <p className={`text-[11px] font-medium uppercase tracking-eyebrow ${onDark ? "text-paper/55" : "text-muted"}`}>
-        {label}
-      </p>
-      <div className="mt-6">
-        <p className={`break-words font-display text-4xl leading-none tabular-nums xl:text-[2.75rem] ${
+    <div className={`group flex min-w-0 flex-col justify-between rounded-2xl p-5 transition duration-300 hover:-translate-y-0.5 hover:shadow-lift ${surfaces[surface]}`}>
+      <div className="flex items-start justify-between gap-3">
+        <p className={`text-[13px] font-semibold ${onDark ? "text-paper/70" : "text-ink/60"}`}>{label}</p>
+        {Icon && (
+          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition group-hover:scale-110 ${ACCENTS[accent]}`}>
+            <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+          </span>
+        )}
+      </div>
+      <div className="mt-5">
+        <p className={`break-words text-[2rem] font-extrabold leading-none tracking-[-0.035em] tabular-nums ${
           tones[tone] || (onDark ? "text-paper" : "text-ink")
         }`}>
           <Figure value={value} />
         </p>
         {sub && (
-          <p className={`mt-2 text-xs ${onDark ? "text-paper/60" : "text-muted"}`}>{sub}</p>
+          <p className={`mt-2 text-xs font-medium ${onDark ? "text-paper/60" : "text-muted"}`}>{sub}</p>
         )}
       </div>
     </div>
   );
 }
 
-export function Panel({ eyebrow, title, action, children, className = "", tone = "white" }) {
+export function Panel({ eyebrow, title, action, children, className = "", tone = "white", icon: Icon }) {
   const tones = {
-    white: "border border-line bg-white",
+    white: "border border-line/80 bg-white shadow-soft",
     sand: "bg-sand",
     butter: "bg-butter",
     paper: "border border-line bg-paper",
   };
   return (
-    <section className={`rounded-[4px] p-5 ${tones[tone]} ${className}`}>
+    <section className={`rounded-2xl p-5 lg:p-6 ${tones[tone]} ${className}`}>
       {(title || eyebrow || action) && (
-        <div className="mb-4 flex items-end justify-between gap-3">
-          <div>
-            {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-            {title && <h2 className="section-title mt-1">{title}</h2>}
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            {Icon && (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink text-butter">
+                <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+              </span>
+            )}
+            <div>
+              {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+              {title && <h2 className="section-title mt-0.5">{title}</h2>}
+            </div>
           </div>
           {action}
         </div>
@@ -250,12 +285,13 @@ export function Modal({ open, title, onClose, children, footer }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-olive-deep/50 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg rounded-[4px] bg-white shadow-2xl shadow-olive-deep/20">
+      <div className="absolute inset-0 bg-olive-deep/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl shadow-olive-deep/25">
         <div className="flex items-center justify-between border-b border-line px-6 py-4">
-          <h2 className="font-display text-2xl font-normal tracking-tight">{title}</h2>
+          <h2 className="text-lg font-bold tracking-tight">{title}</h2>
           <button type="button" onClick={onClose}
-            className="text-2xl leading-none text-muted hover:text-ink" aria-label="Close">&times;</button>
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-xl leading-none text-muted hover:bg-paper hover:text-ink"
+            aria-label="Close">&times;</button>
         </div>
         <div className="px-6 py-5">{children}</div>
         {footer && (

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
+import { Banknote, Clock, PackageCheck, Truck, Upload, Wallet } from "lucide-react";
 import {
   Alert, BigNumber, EmptyState, Field, Modal, PageHeader, PageLoader, Spinner, StatCard,
 } from "@/components/ui";
@@ -47,6 +48,7 @@ export default function Payments() {
   return (
     <div className="space-y-5">
       <PageHeader
+        icon={Wallet}
         tone="olive"
         eyebrow="Cash on delivery ledger"
         title="Payments"
@@ -54,26 +56,26 @@ export default function Payments() {
         aside={<BigNumber value={money(ledger?.collected_unsettled?.amount)} tone="text-butter"
           labelTone="text-paper/60" label="collected by couriers, not yet paid to you" />}
         actions={<button type="button" className="btn-primary"
-          onClick={() => setUploadOpen(true)}>Upload statement</button>}
+          onClick={() => setUploadOpen(true)}><Upload className="h-4 w-4" strokeWidth={2.5} /> Upload statement</button>}
       />
 
       {failure && <Alert onDismiss={() => setFailure("")}>{failure}</Alert>}
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="In transit" value={money(ledger?.in_transit?.amount)}
+        <StatCard label="In transit" icon={Truck} accent="sky" value={money(ledger?.in_transit?.amount)}
           sub={`${ledger?.in_transit?.count ?? 0} parcels`} />
-        <StatCard label="Collected, unsettled"
+        <StatCard label="Collected, unsettled" icon={Banknote} accent="butter"
           value={money(ledger?.collected_unsettled?.amount)}
           sub={`${ledger?.collected_unsettled?.count ?? 0} parcels`} />
-        <StatCard label="Overdue" value={money(ledger?.overdue?.amount)}
+        <StatCard label="Overdue" icon={Clock} accent="clay" value={money(ledger?.overdue?.amount)}
           tone={ledger?.overdue?.count > 0 ? "danger" : undefined}
           sub={`Delivered over ${ledger?.overdue_days ?? 7} days ago`} />
-        <StatCard label="Settled" value={money(ledger?.settled?.amount)}
+        <StatCard label="Settled" icon={PackageCheck} accent="sage" value={money(ledger?.settled?.amount)}
           tone="ok" sub={`${ledger?.settled?.count ?? 0} parcels`} />
       </section>
 
       {ledger?.shortfalls?.length > 0 && (
-        <section className="rounded-[4px] border border-[#E3C6B6] bg-clay-soft p-5">
+        <section className="rounded-2xl border border-[#E3C6B6] bg-clay-soft p-5">
           <h2 className="mb-1 section-title text-danger">
             Courier paid less than expected
           </h2>
@@ -105,7 +107,7 @@ export default function Payments() {
           <EmptyState title="No statements uploaded"
             description="Upload the CSV your courier sends and we will match it to your shipments." />
         ) : (
-          <div className="overflow-hidden rounded-[4px] border border-line bg-white">
+          <div className="overflow-hidden rounded-2xl border border-line bg-white">
             <table className="w-full text-sm">
               <thead className="table-head">
                 <tr>
@@ -301,7 +303,7 @@ function PreviewModal({ settlementId, onClose, onDone, onError }) {
 
           <div className="grid grid-cols-2 gap-2 text-sm">
             {Object.entries(MATCH_LABELS).map(([key, label]) => (
-              <div key={key} className="rounded-[3px] border border-line px-3 py-2">
+              <div key={key} className="rounded-lg border border-line px-3 py-2">
                 <p className="text-xs text-muted">{label}</p>
                 <p className="text-lg font-semibold tabular-nums">
                   {counts[key] || 0}

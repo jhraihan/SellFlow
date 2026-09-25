@@ -38,11 +38,16 @@ export default {
         danger: "#B0442F",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "Segoe UI", "sans-serif"],
-        display: ["Instrument Serif", "Georgia", "Times New Roman", "serif"],
+        sans: ["Plus Jakarta Sans", "Inter", "system-ui", "Segoe UI", "sans-serif"],
+        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
       },
       letterSpacing: {
-        eyebrow: "0.18em",
+        eyebrow: "0.16em",
+      },
+      boxShadow: {
+        soft: "0 1px 2px rgba(29, 28, 24, 0.04), 0 2px 8px -2px rgba(29, 28, 24, 0.05)",
+        lift: "0 18px 40px -18px rgba(69, 68, 58, 0.35)",
+        glow: "0 10px 30px -10px rgba(239, 210, 79, 0.65)",
       },
     },
   },

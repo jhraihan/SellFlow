@@ -6,6 +6,7 @@ import {
 import { api, downloadFile } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, moneyShort } from "@/lib/format";
+import { Banknote, BarChart3, Download, PackageX, ShoppingBag, TrendingUp } from "lucide-react";
 import { Alert, BigNumber, EmptyState, Figure, PageHeader, PageLoader, StatCard } from "@/components/ui";
 
 const RANGES = [
@@ -70,6 +71,7 @@ export default function Analytics() {
   return (
     <div className="space-y-5">
       <PageHeader
+        icon={BarChart3}
         tone="butter"
         eyebrow="Reports"
         title="Analytics"
@@ -93,13 +95,13 @@ export default function Analytics() {
       </PageHeader>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Net sales" value={money(profit?.net_sales)}
+        <StatCard label="Net sales" icon={ShoppingBag} accent="butter" value={money(profit?.net_sales)}
           sub={`${profit?.delivered_orders ?? 0} delivered orders`} />
-        <StatCard label="Gross profit" value={money(profit?.gross_profit)} />
-        <StatCard label="Net profit" value={money(profit?.net_profit)}
+        <StatCard label="Gross profit" icon={TrendingUp} accent="sky" value={money(profit?.gross_profit)} />
+        <StatCard label="Net profit" icon={Banknote} accent="sage" value={money(profit?.net_profit)}
           tone={Number(profit?.net_profit) >= 0 ? "ok" : "danger"}
           sub={`${profit?.net_margin_percent ?? 0}% margin`} />
-        <StatCard label="Return loss" value={money(profit?.return_loss)}
+        <StatCard label="Return loss" icon={PackageX} accent="clay" value={money(profit?.return_loss)}
           tone={Number(profit?.return_loss) > 0 ? "danger" : undefined}
           sub={`${profit?.return_breakdown?.count ?? 0} returns`} />
       </section>
@@ -107,7 +109,7 @@ export default function Analytics() {
       <section className="card grid gap-8 p-6 lg:grid-cols-[1fr_1.4fr] lg:p-8">
         <div>
           <p className="eyebrow">Profit statement</p>
-          <h2 className="mt-2 font-display text-4xl leading-none tracking-tight">
+          <h2 className="mt-2 text-2xl font-extrabold leading-tight tracking-[-0.03em]">
             How the profit is worked out
           </h2>
           <p className="mt-4 max-w-xs text-sm text-muted">
@@ -128,8 +130,8 @@ export default function Analytics() {
           <Row label="Operating expenses"
             value={`- ${money(profit?.operating_expenses)}`} />
           <div className="flex items-baseline justify-between border-t-2 border-ink pt-3">
-            <dt className="font-display text-2xl">Net profit</dt>
-            <dd className={`font-display text-4xl tabular-nums ${
+            <dt className="text-lg font-bold">Net profit</dt>
+            <dd className={`text-3xl font-extrabold tracking-[-0.035em] tabular-nums ${
               Number(profit?.net_profit) >= 0 ? "text-ok" : "text-danger"
             }`}><Figure value={money(profit?.net_profit)} /></dd>
           </div>
@@ -211,8 +213,8 @@ export default function Analytics() {
 function Row({ label, value, strong }) {
   return (
     <div className={`flex items-baseline justify-between ${strong ? "border-t border-line pt-2" : ""}`}>
-      <dt className={strong ? "font-display text-lg" : "text-muted"}>{label}</dt>
-      <dd className={`tabular-nums ${strong ? "font-display text-lg" : ""}`}>{value}</dd>
+      <dt className={strong ? "text-[15px] font-semibold" : "text-muted"}>{label}</dt>
+      <dd className={`tabular-nums ${strong ? "text-[15px] font-semibold" : ""}`}>{value}</dd>
     </div>
   );
 }
@@ -223,10 +225,10 @@ function Panel({ title, rows, render, empty, exportKey }) {
       <div className="mb-3 flex items-center justify-between">
         <h2 className="section-title">{title}</h2>
         {rows.length > 0 && (
-          <button type="button" className="text-xs link"
+          <button type="button" className="inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-olive-deep transition hover:border-ink/30 hover:bg-paper"
             onClick={() => downloadFile(`/analytics/export/?report=${exportKey}`,
               `${exportKey}-report.csv`)}>
-            Export CSV
+            <Download className="h-3.5 w-3.5" /> Export CSV
           </button>
         )}
       </div>

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
+import { Plus, Search, ShoppingBag } from "lucide-react";
 import { Alert, BigNumber, EmptyState, PageHeader, PageLoader, RiskBadge, StatusBadge } from "@/components/ui";
 
 const FILTERS = [
@@ -51,6 +52,7 @@ export default function Orders() {
   return (
     <div className="space-y-4">
       <PageHeader
+        icon={ShoppingBag}
         tone="white"
         eyebrow="Order book"
         title="Orders"
@@ -58,14 +60,14 @@ export default function Orders() {
         aside={<BigNumber value={shown} tone="text-ink/25"
           label={status ? "orders with this status" : "orders in total"} />}
         actions={can("manage_orders") && (
-          <Link to="/orders/new" className="btn-primary">New order</Link>
+          <Link to="/orders/new" className="btn-primary"><Plus className="h-4 w-4" strokeWidth={2.5} /> New order</Link>
         )}
       >
         <form onSubmit={onSearch} className="flex gap-2">
           <input className="input bg-paper/60" placeholder="Order number, customer name or phone"
             value={search} onChange={(e) => setSearch(e.target.value)}
             aria-label="Search orders" />
-          <button type="submit" className="btn-dark">Search</button>
+          <button type="submit" className="btn-dark"><Search className="h-4 w-4" /> Search</button>
         </form>
       </PageHeader>
 
@@ -103,7 +105,7 @@ export default function Orders() {
 
       {orders.length > 0 && (
         <>
-          <div className="hidden overflow-hidden rounded-[4px] border border-line bg-white lg:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-line bg-white lg:block">
             <table className="w-full text-sm">
               <thead className="table-head">
                 <tr>

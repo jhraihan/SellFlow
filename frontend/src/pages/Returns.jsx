@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
+import { RotateCcw, Undo2 } from "lucide-react";
 import {
   Alert, BigNumber, EmptyState, Field, Figure, Modal, PageHeader, PageLoader, Spinner,
 } from "@/components/ui";
@@ -64,6 +65,7 @@ export default function Returns() {
   return (
     <div className="space-y-5">
       <PageHeader
+        icon={Undo2}
         tone="clay"
         eyebrow="Reverse logistics"
         title="Returns"
@@ -72,7 +74,7 @@ export default function Returns() {
           labelTone="text-[#8A6446]" label="parcels came back" />}
         actions={can("record_returns") && (
           <button type="button" className="btn-dark"
-            onClick={() => setOpenFor(true)}>Record a return</button>
+            onClick={() => setOpenFor(true)}><RotateCcw className="h-4 w-4" /> Record a return</button>
         )}
       />
 
@@ -92,7 +94,7 @@ export default function Returns() {
         <EmptyState title="No returns yet"
           description="Parcels that come back are recorded here with their real cost." />
       ) : (
-        <div className="overflow-hidden rounded-[4px] border border-line bg-white">
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
           <table className="w-full text-sm">
             <thead className="table-head">
               <tr>
@@ -175,7 +177,7 @@ function Stat({ label, value, tone }) {
   return (
     <div className="card p-5">
       <p className="eyebrow">{label}</p>
-      <p className={`mt-5 font-display text-4xl leading-none tabular-nums ${
+      <p className={`mt-5 text-3xl font-extrabold leading-none tracking-[-0.035em] tabular-nums ${
         tone === "danger" ? "text-danger" : ""
       }`}><Figure value={value} /></p>
     </div>
@@ -302,7 +304,7 @@ function ResolveModal({ record, onClose, onDone, onError }) {
           <ul className="space-y-2">
             {items.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3
-                                           rounded-[3px] border border-line px-3 py-2">
+                                           rounded-lg border border-line px-3 py-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm">{item.product_name}</p>
                   <p className="text-xs text-muted">Qty {item.quantity}</p>

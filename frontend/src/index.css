@@ -8,7 +8,7 @@
   }
   body {
     @apply bg-paper text-ink antialiased;
-    font-feature-settings: "tnum";
+    font-feature-settings: "tnum", "cv11";
   }
   ::selection {
     @apply bg-butter text-ink;
@@ -17,57 +17,56 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-[3px] px-4 py-2
-           text-sm font-medium transition focus:outline-none
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+           text-sm font-semibold transition duration-200 focus:outline-none
            focus-visible:ring-2 focus-visible:ring-olive
            focus-visible:ring-offset-2 focus-visible:ring-offset-paper
            disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-butter text-ink hover:bg-butter-deep;
+    @apply btn bg-butter text-ink shadow-glow hover:-translate-y-px hover:bg-butter-deep
+           disabled:translate-y-0 disabled:bg-butter-soft disabled:text-ink/45
+           disabled:shadow-none disabled:opacity-100;
   }
   .btn-dark {
-    @apply btn bg-olive text-paper hover:bg-olive-deep;
+    @apply btn bg-olive-deep text-paper shadow-soft hover:-translate-y-px hover:bg-ink;
   }
   .btn-secondary {
-    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/40;
+    @apply btn border border-line bg-white text-ink shadow-soft hover:border-ink/25 hover:bg-paper/60;
   }
   .btn-danger {
     @apply btn bg-danger text-white hover:opacity-90;
   }
   .input {
-    @apply w-full rounded-[3px] border border-line bg-white px-3 py-2 text-sm
-           transition placeholder:text-muted/80 focus:border-olive
-           focus:outline-none focus:ring-2 focus:ring-butter/70;
+    @apply w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm
+           shadow-soft transition placeholder:text-muted/80 focus:border-olive
+           focus:outline-none focus:ring-4 focus:ring-butter/50;
   }
   .label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-muted;
+    @apply mb-1.5 block text-[13px] font-semibold text-ink/80;
   }
   .card {
-    @apply rounded-[4px] border border-line bg-white;
+    @apply rounded-2xl border border-line/80 bg-white shadow-soft;
   }
   .field-error {
-    @apply mt-1 text-xs text-danger;
+    @apply mt-1 text-xs font-medium text-danger;
   }
   .eyebrow {
-    @apply text-[11px] font-medium uppercase tracking-eyebrow text-muted;
-  }
-  .display {
-    @apply font-display font-normal tracking-tight;
+    @apply text-[11px] font-bold uppercase tracking-eyebrow text-muted;
   }
   .link {
-    @apply text-ink underline decoration-ink/25 underline-offset-4 transition
-           hover:decoration-ink;
+    @apply font-semibold text-olive-deep underline decoration-butter-deep decoration-2
+           underline-offset-4 transition hover:text-ink hover:decoration-ink;
   }
   .section-title {
-    @apply font-display text-2xl font-normal leading-tight tracking-tight;
+    @apply text-lg font-bold leading-tight tracking-tight text-ink;
   }
   .table-head {
-    @apply border-b border-line bg-paper/60 text-left text-[11px] uppercase
-           tracking-[0.14em] text-muted;
+    @apply border-b border-line bg-paper/70 text-left text-[11px] font-bold uppercase
+           tracking-[0.12em] text-muted;
   }
   .pill {
-    @apply shrink-0 rounded-full border px-3.5 py-1 text-sm transition;
+    @apply shrink-0 rounded-full border px-3.5 py-1 text-sm font-medium transition;
   }
   .pill-on {
     @apply pill border-ink bg-ink text-paper;

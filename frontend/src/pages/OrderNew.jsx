@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api, errorCode, errorMessage, fieldErrors } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money } from "@/lib/format";
+import { Plus } from "lucide-react";
 import { Alert, Field, PageHeader, RiskBadge, Spinner } from "@/components/ui";
 
 const DRAFT_KEY = "shopflow.order-draft";
@@ -225,6 +226,7 @@ export default function OrderNew() {
   return (
     <div className="mx-auto max-w-3xl space-y-5 pb-4">
       <PageHeader
+        icon={Plus}
         tone="sand"
         eyebrow="From chat to courier"
         title="New order"
@@ -388,7 +390,7 @@ export default function OrderNew() {
         </dl>
       </section>
 
-      <div className="sticky bottom-[3.4rem] z-20 -mx-4 bg-olive/95 px-4 py-3 backdrop-blur lg:bottom-4 lg:mx-0 lg:rounded-[4px] lg:px-3">
+      <div className="sticky bottom-[3.4rem] z-20 -mx-4 bg-olive/95 px-4 py-3 backdrop-blur lg:bottom-4 lg:mx-0 lg:rounded-2xl lg:px-3">
         <button type="button" onClick={() => submit(false)}
           disabled={submitting || lines.length === 0}
           className="btn-primary w-full py-3 text-base">
@@ -400,7 +402,7 @@ export default function OrderNew() {
       {duplicate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-olive-deep/50 backdrop-blur-[2px]" onClick={() => setDuplicate(null)} />
-          <div className="relative z-10 w-full max-w-md rounded-[4px] bg-white p-5 shadow-xl">
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
             <h2 className="section-title">This might be a duplicate</h2>
             <p className="mt-1 text-sm text-muted">
               This customer already has a recent open order with one of these products.
@@ -439,8 +441,10 @@ function Row({ label, value }) {
 
 function StepTitle({ number, title }) {
   return (
-    <div className="flex items-baseline gap-3 border-b border-line pb-3">
-      <span className="font-display text-lg italic text-muted">{number}</span>
+    <div className="flex items-center gap-3 border-b border-line pb-4">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-butter text-xs font-extrabold text-ink shadow-glow">
+        {number}
+      </span>
       <h2 className="section-title">{title}</h2>
     </div>
   );

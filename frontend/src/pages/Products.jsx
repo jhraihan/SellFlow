@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money } from "@/lib/format";
+import { Package } from "lucide-react";
 import { Alert, BigNumber, EmptyState, Figure, PageHeader, PageLoader } from "@/components/ui";
 
 const TILE_TONES = [
@@ -30,6 +31,7 @@ export default function Products() {
   return (
     <div className="space-y-6">
       <PageHeader
+        icon={Package}
         tone="white"
         eyebrow="Catalog"
         title="Products"
@@ -37,10 +39,10 @@ export default function Products() {
         aside={<BigNumber value={data?.count ?? products.length} tone="text-ink/25"
           label="products in the catalog" />}
         actions={
-          <div className="flex rounded-[3px] border border-line p-0.5 text-xs">
+          <div className="flex rounded-lg border border-line p-0.5 text-xs">
             {[["grid", "Gallery"], ["list", "List"]].map(([key, label]) => (
               <button key={key} type="button" onClick={() => setView(key)}
-                className={`rounded-[2px] px-3 py-1.5 transition ${
+                className={`rounded-md px-3 py-1.5 transition ${
                   view === key ? "bg-ink text-paper" : "text-muted hover:text-ink"
                 }`}>
                 {label}
@@ -73,19 +75,19 @@ function ProductTile({ product, tone }) {
   const low = available <= product.low_stock_threshold;
   return (
     <article className="group">
-      <div className={`relative aspect-[4/5] overflow-hidden rounded-[3px] ${tone}`}>
+      <div className={`relative aspect-[4/5] overflow-hidden rounded-lg ${tone}`}>
         {product.primary_image ? (
           <img src={product.primary_image} alt={product.name}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <span className="font-display text-8xl italic text-ink/15">
+            <span className="text-7xl font-extrabold tracking-[-0.05em] text-ink/10">
               {product.name.trim().charAt(0)}
             </span>
           </div>
         )}
         {low && (
-          <span className="absolute left-3 top-3 rounded-[2px] bg-butter px-2 py-0.5 text-[11px] font-medium">
+          <span className="absolute left-3 top-3 rounded-md bg-butter px-2 py-0.5 text-[11px] font-medium">
             {available === 0 ? "Sold out" : "Running low"}
           </span>
         )}
@@ -95,9 +97,9 @@ function ProductTile({ product, tone }) {
           <p className="text-[11px] uppercase tracking-[0.14em] text-muted">
             {product.category_name || product.sku || "Product"}
           </p>
-          <h3 className="mt-0.5 truncate font-display text-xl leading-tight">{product.name}</h3>
+          <h3 className="mt-0.5 truncate text-base font-bold leading-snug tracking-tight">{product.name}</h3>
         </div>
-        <p className="shrink-0 font-display text-xl tabular-nums">
+        <p className="shrink-0 text-base font-extrabold tabular-nums">
           <Figure value={money(product.selling_price)} />
         </p>
       </div>
@@ -110,7 +112,7 @@ function ProductTile({ product, tone }) {
 
 function ProductTable({ products }) {
   return (
-    <div className="overflow-hidden rounded-[4px] border border-line bg-white">
+    <div className="overflow-hidden rounded-2xl border border-line bg-white">
       <table className="w-full text-sm">
         <thead className="table-head">
           <tr>
@@ -127,7 +129,7 @@ function ProductTable({ products }) {
             return (
               <tr key={product.id} className="hover:bg-paper/60">
                 <td className="px-5 py-3">
-                  <p className="font-display text-lg leading-tight">{product.name}</p>
+                  <p className="text-[15px] font-semibold leading-snug">{product.name}</p>
                   {product.category_name && (
                     <p className="text-xs text-muted">{product.category_name}</p>
                   )}

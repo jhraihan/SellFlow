@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { relative } from "@/lib/format";
+import { Bell } from "lucide-react";
 import { Alert, EmptyState, PageHeader, PageLoader } from "@/components/ui";
 
 const LEVEL_CLASSES = {
@@ -36,6 +37,7 @@ export default function Notifications() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <PageHeader
+        icon={Bell}
         eyebrow="Inbox"
         title="Alerts"
         note="Things worth your attention"
@@ -60,7 +62,7 @@ export default function Notifications() {
           {items.map((item) => (
             <li
               key={item.id}
-              className={`rounded-[4px] border p-3 ${
+              className={`rounded-2xl border p-3 ${
                 LEVEL_CLASSES[item.level] || LEVEL_CLASSES.info
               } ${item.is_read ? "opacity-70" : ""}`}
             >

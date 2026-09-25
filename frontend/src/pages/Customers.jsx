@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { money, relative } from "@/lib/format";
+import { Users } from "lucide-react";
 import { Alert, BigNumber, EmptyState, PageHeader, PageLoader, RiskBadge } from "@/components/ui";
 
 export default function Customers() {
@@ -21,6 +22,7 @@ export default function Customers() {
   return (
     <div className="space-y-4">
       <PageHeader
+        icon={Users}
         tone="sand"
         eyebrow="People"
         title="Customers"
@@ -35,7 +37,7 @@ export default function Customers() {
           description="They are added automatically when you take an order."
         />
       ) : (
-        <div className="overflow-hidden rounded-[4px] border border-line bg-white">
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
           <table className="w-full text-sm">
             <thead className="table-head">
               <tr>

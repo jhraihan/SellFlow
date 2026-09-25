@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, downloadFile, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { dateTime, money, ORDER_STATUS_LABELS } from "@/lib/format";
+import { Download, Receipt } from "lucide-react";
 import { Alert, Figure, Modal, PageHeader, PageLoader, RiskBadge, Spinner, StatusBadge } from "@/components/ui";
 
 const CANCEL_REASONS = [
@@ -69,6 +70,7 @@ export default function OrderDetail() {
     <div className="mx-auto max-w-5xl space-y-5">
       <Link to="/orders" className="eyebrow inline-block hover:text-ink">&larr; All orders</Link>
       <PageHeader
+        icon={Receipt}
         tone="white"
         eyebrow={order.source ? `Order from ${order.source.replace(/_/g, " ")}` : "Order"}
         title={order.order_number}
@@ -80,13 +82,13 @@ export default function OrderDetail() {
             onClick={() => downloadFile(`/orders/${id}/invoice/`,
               `invoice-${order.order_number}.pdf`).catch(
               (err) => setFailure(errorMessage(err, "Could not download the invoice.")))}>
-            Invoice
+            <Download className="h-4 w-4" /> Invoice
           </button>
           <button type="button" className="btn-secondary text-sm"
             onClick={() => downloadFile(`/orders/${id}/label/`,
               `label-${order.order_number}.pdf`).catch(
               (err) => setFailure(errorMessage(err, "Could not download the label.")))}>
-            Label
+            <Download className="h-4 w-4" /> Label
           </button>
         </>
         }
@@ -122,7 +124,7 @@ export default function OrderDetail() {
             {order.items.map((item) => (
               <li key={item.id} className="flex items-start justify-between gap-3 py-2">
                 <div className="min-w-0">
-                  <p className="truncate font-display text-lg leading-tight">{item.product_name}</p>
+                  <p className="truncate text-[15px] font-semibold leading-snug">{item.product_name}</p>
                   {item.variant_label && (
                     <p className="text-xs text-muted">{item.variant_label}</p>
                   )}
@@ -147,9 +149,9 @@ export default function OrderDetail() {
             {Number(order.advance_paid) > 0 && (
               <Row label="Advance paid" value={`- ${money(order.advance_paid)}`} />
             )}
-            <div className="mt-2 flex items-baseline justify-between rounded-[3px] bg-butter px-4 py-3">
-              <dt className="font-display text-xl">Cash on delivery</dt>
-              <dd className="font-display text-4xl tabular-nums">
+            <div className="mt-2 flex items-baseline justify-between rounded-lg bg-butter px-4 py-3">
+              <dt className="text-base font-bold">Cash on delivery</dt>
+              <dd className="text-3xl font-extrabold tracking-[-0.035em] tabular-nums">
                 <Figure value={money(order.cod_amount)} />
               </dd>
             </div>
@@ -157,7 +159,7 @@ export default function OrderDetail() {
         </section>
 
         <div className="space-y-4">
-          <section className="rounded-[4px] bg-sand p-5">
+          <section className="rounded-2xl bg-sand p-5">
             <p className="eyebrow text-olive/70">Deliver to</p>
             <h2 className="mb-2 mt-1 section-title">Customer</h2>
             <div className="flex items-center gap-2">
@@ -174,7 +176,7 @@ export default function OrderDetail() {
               {order.shipping_district && `, ${order.shipping_district}`}
             </p>
             {order.customer_note && (
-              <p className="mt-3 rounded-[3px] bg-white/70 p-2.5 text-xs">
+              <p className="mt-3 rounded-lg bg-white/70 p-2.5 text-xs">
                 <span className="font-medium">Note: </span>{order.customer_note}
               </p>
             )}
@@ -187,7 +189,7 @@ export default function OrderDetail() {
               {(order.status_history || []).map((row) => (
                 <li key={row.id} className="relative">
                   <span className="absolute -left-[1.6rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-olive" />
-                  <p className="font-display text-lg leading-tight">{row.to_status_display}</p>
+                  <p className="text-[15px] font-semibold leading-snug">{row.to_status_display}</p>
                   <p className="text-xs text-muted">
                     {dateTime(row.created_at)}
                     {row.actor_name && ` by ${row.actor_name}`}

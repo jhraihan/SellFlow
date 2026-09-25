@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, errorMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { dateTime, money, relative } from "@/lib/format";
+import { Truck } from "lucide-react";
 import {
   Alert, BigNumber, EmptyState, Field, Modal, PageHeader, PageLoader, Spinner, StatusBadge,
 } from "@/components/ui";
@@ -77,6 +78,7 @@ export default function Delivery() {
   return (
     <div className="space-y-5">
       <PageHeader
+        icon={Truck}
         tone="sand"
         eyebrow="Logistics"
         title="Delivery"
@@ -134,7 +136,7 @@ export default function Delivery() {
         <EmptyState title="No shipments here"
           description="Book a confirmed order and it will show up." />
       ) : (
-        <div className="overflow-hidden rounded-[4px] border border-line bg-white">
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
           <table className="w-full text-sm">
             <thead className="table-head">
               <tr>
