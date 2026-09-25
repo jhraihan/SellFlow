@@ -93,9 +93,9 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: shopflow
-          POSTGRES_PASSWORD: shopflow
-          POSTGRES_DB: shopflow_test
+          POSTGRES_USER: sellflow
+          POSTGRES_PASSWORD: sellflow
+          POSTGRES_DB: sellflow_test
         ports:
           - 5432:5432
         options: >-
@@ -122,7 +122,7 @@ jobs:
           SECRET_KEY: ci-only-not-a-real-secret
           DEBUG: "True"
           FIELD_ENCRYPTION_KEY: U6NqWrNpqJTlkZYNLyRChEF0LqxQPoIZIfq5sWqfGTo=
-          DATABASE_URL: postgresql://shopflow:shopflow@localhost:5432/shopflow_test
+          DATABASE_URL: postgresql://sellflow:sellflow@localhost:5432/sellflow_test
         run: pytest -q
 
       - name: Verify concurrency suite actually ran
@@ -131,7 +131,7 @@ jobs:
           SECRET_KEY: ci-only-not-a-real-secret
           DEBUG: "True"
           FIELD_ENCRYPTION_KEY: U6NqWrNpqJTlkZYNLyRChEF0LqxQPoIZIfq5sWqfGTo=
-          DATABASE_URL: postgresql://shopflow:shopflow@localhost:5432/shopflow_test
+          DATABASE_URL: postgresql://sellflow:sellflow@localhost:5432/sellflow_test
         run: |
           output=$(pytest tests/test_concurrency.py -q 2>&1)
           echo "$output"

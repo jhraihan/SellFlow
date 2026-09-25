@@ -157,7 +157,7 @@ class PasswordResetRequestView(APIView):
             token = issue_reset_token(user)
             link = frontend_link("reset-password", token)
             send_mail(
-                subject="Reset your ShopFlow BD password",
+                subject="Reset your SellFlow BD password",
                 message=(
                     f"Hello {user.get_short_name()},\n\n"
                     f"Use this link to set a new password:\n{link}\n\n"
@@ -233,7 +233,7 @@ class SendVerificationEmailView(APIView):
         token = issue_verification_token(user)
         link = frontend_link("verify-email", token)
         send_mail(
-            subject="Verify your ShopFlow BD email",
+            subject="Verify your SellFlow BD email",
             message=(
                 f"Hello {user.get_short_name()},\n\n"
                 f"Confirm your email address:\n{link}\n\n"

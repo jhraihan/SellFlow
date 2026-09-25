@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      API_URL: ${{ secrets.SHOPFLOW_API_URL }}
-      CRON_SECRET: ${{ secrets.SHOPFLOW_CRON_SECRET }}
+      API_URL: ${{ secrets.SELLFLOW_API_URL }}
+      CRON_SECRET: ${{ secrets.SELLFLOW_CRON_SECRET }}
     steps:
       - name: Skip when not configured
         if: env.API_URL == '' || env.CRON_SECRET == ''
-        run: echo "SHOPFLOW_API_URL or SHOPFLOW_CRON_SECRET is not set. Nothing to do."
+        run: echo "SELLFLOW_API_URL or SELLFLOW_CRON_SECRET is not set. Nothing to do."
 
       - name: Call the jobs endpoint
         if: env.API_URL != '' && env.CRON_SECRET != ''

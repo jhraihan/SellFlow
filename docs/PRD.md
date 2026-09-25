@@ -1,6 +1,6 @@
 # Product Requirements Document
 
-## ShopFlow BD — F-commerce Order & Delivery Management Platform
+## SellFlow BD — F-commerce Order & Delivery Management Platform
 
 META|Document version|1.0
 META|Status|Draft for review
@@ -15,11 +15,11 @@ META|Target market|Bangladesh — Facebook/Instagram commerce sellers
 
 Bangladesh has one of the world's largest social-commerce markets by seller count. Tens of thousands of sellers run full businesses inside Facebook Page inboxes, Instagram DMs, and WhatsApp threads. They have real revenue but no operating system: orders live in chat scrollback, customer addresses are copy-pasted into courier websites, Cash-on-Delivery (COD) money is reconciled by hand against courier statements, and profit is guessed at the end of the month.
 
-**ShopFlow BD** is a multi-tenant SaaS platform that becomes the single operational record for these sellers. A seller enters or imports an order once; the platform carries it through confirmation, inventory reservation, courier booking, delivery tracking, COD collection, reconciliation, returns, and finally into a profit report that is accurate to the taka.
+**SellFlow BD** is a multi-tenant SaaS platform that becomes the single operational record for these sellers. A seller enters or imports an order once; the platform carries it through confirmation, inventory reservation, courier booking, delivery tracking, COD collection, reconciliation, returns, and finally into a profit report that is accurate to the taka.
 
 The MVP is deliberately scoped to the **order-to-cash loop**, which is where sellers lose the most money and time. Everything else — Messenger automation, multi-warehouse, accounting exports — is sequenced behind that loop.
 
-> **Product thesis:** The core pain in Bangladeshi F-commerce is not order-taking. It is that nobody knows which orders actually turned into collected cash. ShopFlow BD wins by owning COD reconciliation and true per-order profit, not by being another order form.
+> **Product thesis:** The core pain in Bangladeshi F-commerce is not order-taking. It is that nobody knows which orders actually turned into collected cash. SellFlow BD wins by owning COD reconciliation and true per-order profit, not by being another order form.
 
 ---
 
@@ -126,7 +126,7 @@ ROLEDEF|Manager|Everything operational plus financial reports and cost prices. C
 ROLEDEF|Order Staff|Create/edit/confirm orders, manage customers, book shipments, log call outcomes. Cost prices, profit, analytics, and settings are hidden.
 ROLEDEF|Delivery Staff|Read-only on orders; can update shipment status and record returns. No customer list export.
 ROLEDEF|Accountant|Read-only on orders and shipments; full access to payments, COD reconciliation, expenses, and reports. Cannot modify orders.
-ROLEDEF|Platform Admin|ShopFlow internal. Manages plans, courier integrations, and support impersonation (audit-logged, consent-gated).
+ROLEDEF|Platform Admin|SellFlow internal. Manages plans, courier integrations, and support impersonation (audit-logged, consent-gated).
 
 ## 6.1 Permission matrix
 
@@ -477,7 +477,7 @@ ROUTE|/track|Public tracking page (outside the dashboard shell).
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ ShopFlow BD    [store switcher]      🔍  🔔 3   Rumana ▾     │
+│ SellFlow BD    [store switcher]      🔍  🔔 3   Rumana ▾     │
 ├────────────┬─────────────────────────────────────────────────┤
 │ Dashboard  │                                                 │
 │ Orders  12 │   Page content                                  │

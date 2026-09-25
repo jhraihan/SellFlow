@@ -28,6 +28,6 @@ CORS_ALLOWED_ORIGINS = config(
 CORS_ALLOW_CREDENTIALS = True
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "ShopFlow BD <noreply@shopflow.local>"
+DEFAULT_FROM_EMAIL = "SellFlow BD <noreply@sellflow.local>"
 
 FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")

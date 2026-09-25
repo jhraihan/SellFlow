@@ -146,7 +146,7 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "ShopFlow BD API",
+    "TITLE": "SellFlow BD API",
     "DESCRIPTION": "F-commerce order & delivery management platform for Bangladesh.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,

@@ -205,7 +205,7 @@ class InvitationViewSet(StoreContextMixin, viewsets.ModelViewSet):
         base = getattr(django_settings, "FRONTEND_URL", "").rstrip("/")
         link = f"{base}/invite/{invitation.token}"
         send_mail(
-            subject=f"You've been invited to {invitation.store.name} on ShopFlow BD",
+            subject=f"You've been invited to {invitation.store.name} on SellFlow BD",
             message=(
                 f"{invitation.invited_by.get_full_name()} invited you to join "
                 f"{invitation.store.name} as {invitation.get_role_display()}.\n\n"

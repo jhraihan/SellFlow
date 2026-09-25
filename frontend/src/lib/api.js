@@ -2,8 +2,8 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "/api/v1";
 
-export const TOKEN_KEY = "shopflow.tokens";
-export const STORE_KEY = "shopflow.store";
+export const TOKEN_KEY = "sellflow.tokens";
+export const STORE_KEY = "sellflow.store";
 
 export function readTokens() {
   try {

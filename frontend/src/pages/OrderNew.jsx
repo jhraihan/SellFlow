@@ -7,7 +7,7 @@ import { money } from "@/lib/format";
 import { Plus } from "lucide-react";
 import { Alert, Field, PageHeader, RiskBadge, Spinner } from "@/components/ui";
 
-const DRAFT_KEY = "shopflow.order-draft";
+const DRAFT_KEY = "sellflow.order-draft";
 
 function loadDraft() {
   try {

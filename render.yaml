@@ -1,13 +1,13 @@
 databases:
-  - name: shopflow-db
+  - name: sellflow-db
     plan: free
     region: singapore
-    databaseName: shopflow
-    user: shopflow
+    databaseName: sellflow
+    user: sellflow
 
 services:
   - type: web
-    name: shopflow-api
+    name: sellflow-api
     runtime: python
     plan: free
     region: singapore
@@ -21,7 +21,7 @@ services:
         value: config.settings.prod
       - key: DATABASE_URL
         fromDatabase:
-          name: shopflow-db
+          name: sellflow-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -35,7 +35,7 @@ services:
         sync: false
 
   - type: web
-    name: shopflow-web
+    name: sellflow-web
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build

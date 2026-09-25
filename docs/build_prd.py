@@ -14,7 +14,7 @@ from reportlab.platypus import (
 
 HERE = Path(__file__).parent
 SRC = HERE / "PRD.md"
-OUT = HERE / "ShopFlow_BD_PRD.pdf"
+OUT = HERE / "SellFlow_BD_PRD.pdf"
 
 INK      = colors.HexColor("#14181F")
 BODY     = colors.HexColor("#2B313B")
@@ -619,7 +619,7 @@ class PRDDoc(BaseDocTemplate):
     def __init__(self, path, **kw):
         super().__init__(path, pagesize=A4, leftMargin=LM, rightMargin=RM,
                          topMargin=TM, bottomMargin=BM,
-                         title="ShopFlow BD — Product Requirements Document",
+                         title="SellFlow BD — Product Requirements Document",
                          author="Jahid H. R.",
                          subject="F-commerce Order & Delivery Management Platform",
                          **kw)
@@ -651,7 +651,7 @@ class PRDDoc(BaseDocTemplate):
         canv.saveState()
         canv.setFillColor(MUTED)
         canv.setFont("Helvetica", 7.6)
-        canv.drawString(LM, PAGE_H - 13 * mm, "ShopFlow BD  ·  PRD v1.0")
+        canv.drawString(LM, PAGE_H - 13 * mm, "SellFlow BD  ·  PRD v1.0")
         sec = self.section[:62]
         canv.drawRightString(PAGE_W - RM, PAGE_H - 13 * mm, sec)
         canv.setStrokeColor(RULE)
@@ -673,7 +673,7 @@ def main():
     subtitle = next(l for l in body_lines if l.startswith("## ")).replace("## ", "")
     md_body = "\n".join(l for l in body_lines
                         if not (l.startswith("# Product Requirements")
-                                or l.startswith("## ShopFlow BD")))
+                                or l.startswith("## SellFlow BD")))
     flows, meta = parse(md_body)
 
     doc = PRDDoc(str(OUT))

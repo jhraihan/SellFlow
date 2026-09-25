@@ -136,7 +136,7 @@ class TestEnsureSuperuser:
 
 
 class TestCrossOriginFrontend:
-    ORIGIN = "https://shopflow-web.onrender.com"
+    ORIGIN = "https://sellflow-web.onrender.com"
 
     def test_preflight_allows_the_store_header(self, api):
         with override_settings(CORS_ALLOWED_ORIGINS=[self.ORIGIN]):

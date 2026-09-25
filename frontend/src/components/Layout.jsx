@@ -29,7 +29,7 @@ export function Logo({ className = "", dark = false }) {
         <ShoppingBag className="h-[18px] w-[18px] text-ink" strokeWidth={2.4} />
       </span>
       <span className={`text-lg font-extrabold tracking-[-0.03em] ${dark ? "text-paper" : "text-ink"}`}>
-        ShopFlow
+        SellFlow
         <span className={`ml-1 align-super text-[10px] font-bold tracking-wider ${dark ? "text-butter" : "text-olive"}`}>BD</span>
       </span>
     </span>
