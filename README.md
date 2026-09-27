@@ -7,6 +7,14 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/SellFlow_BD_PRD.pdf
 
 ---
 
+
+<img width="1917" height="857" alt="Screenshot 2026-09-27 184117" src="https://github.com/user-attachments/assets/ea097d78-390c-489f-b55b-9a18812ad9dd" />
+<img width="1896" height="848" alt="Screenshot 2026-09-27 184143" src="https://github.com/user-attachments/assets/7560c0f3-e072-4b7a-853c-c0a86d2e7103" />
+<img width="1897" height="857" alt="Screenshot 2026-09-27 184222" src="https://github.com/user-attachments/assets/eeab616a-396c-4b0c-beb2-76f947cccfb7" />
+<img width="1912" height="852" alt="Screenshot 2026-09-27 184153" src="https://github.com/user-attachments/assets/47648e5e-036d-4fbe-905a-145f292a96a5" />
+
+
+
 ## Status
 
 **Backend and frontend complete.** Every screen in the PRD is built. The Render deployment is
