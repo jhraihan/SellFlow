@@ -144,6 +144,7 @@ class StockViewSet(StoreScopedMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated, IsStoreMember, HasStoreCapability]
     queryset = StockItem.objects.all()
     required_capability = Cap.VIEW_PRODUCTS
+    filterset_fields = ["product", "variant"]
 
     def get_queryset(self):
         queryset = super().get_queryset().select_related("product", "variant")

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api, errorCode, errorMessage, fieldErrors } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -301,18 +301,28 @@ export default function OrderNew() {
       <section className="card space-y-3 p-6">
         <StepTitle number="02" title="Items" />
 
-        <Field error={errors.items}>
-          <select ref={productRef} className="input" value={picker}
-            onChange={(e) => addLine(e.target.value)} aria-label="Add a product">
-            <option value="">Add a product...</option>
-            {(products?.results || []).map((product) => (
-              <option key={product.id} value={product.id}>
-                {product.name} - {money(product.selling_price)}
-                {product.total_stock ? ` (${product.total_stock.available} left)` : ""}
-              </option>
-            ))}
-          </select>
-        </Field>
+        {(products?.results || []).length === 0 ? (
+          <div className="rounded-xl border border-dashed border-sand-deep bg-paper/60 p-5 text-center">
+            <p className="text-sm font-semibold">Your catalog is empty</p>
+            <p className="mt-1 text-xs text-muted">
+              Add what you sell first, then you can pick it here.
+            </p>
+            <Link to="/products" className="btn-primary mt-3">Add a product</Link>
+          </div>
+        ) : (
+          <Field error={errors.items}>
+            <select ref={productRef} className="input" value={picker}
+              onChange={(e) => addLine(e.target.value)} aria-label="Add a product">
+              <option value="">Add a product...</option>
+              {(products?.results || []).map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.name} - {money(product.selling_price)}
+                  {product.total_stock ? ` (${product.total_stock.available} left)` : ""}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
 
         {lines.length > 0 && (
           <ul className="divide-y divide-line">

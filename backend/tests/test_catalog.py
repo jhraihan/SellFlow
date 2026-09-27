@@ -485,3 +485,43 @@ class TestCsvImport:
         assert response["Content-Type"] == "text/csv"
         body = response.content.decode()
         assert "Kurti" in body
+
+
+class TestStockFilteringByProduct:
+    def test_returns_only_the_requested_product(self, owner_store, auth):
+        owner, store = owner_store
+        kurti = Product.objects.create(
+            store=store, name="Kurti", selling_price=Decimal("1200"),
+            cost_price=Decimal("700"),
+        )
+        saree = Product.objects.create(
+            store=store, name="Saree", selling_price=Decimal("3000"),
+            cost_price=Decimal("2000"),
+        )
+        receive_stock(get_or_create_stock_item(kurti, None), 7)
+        receive_stock(get_or_create_stock_item(saree, None), 4)
+
+        response = auth(owner, store=store).get(f"{STOCK}?product={kurti.id}")
+
+        assert response.status_code == 200
+        rows = response.data["results"]
+        assert len(rows) == 1
+        assert rows[0]["product_id"] == kurti.id
+        assert rows[0]["on_hand"] == 7
+
+    def test_another_stores_product_returns_nothing(
+        self, owner_store, auth, make_user, make_store
+    ):
+        owner, store = owner_store
+        outsider = make_user(email="outsider@example.com")
+        other_store = make_store(outsider, name="Other Shop")
+        other_product = Product.objects.create(
+            store=other_store, name="Not Yours", selling_price=Decimal("500"),
+            cost_price=Decimal("100"),
+        )
+        receive_stock(get_or_create_stock_item(other_product, None), 9)
+
+        response = auth(owner, store=store).get(f"{STOCK}?product={other_product.id}")
+
+        assert response.status_code == 200
+        assert response.data["results"] == []
