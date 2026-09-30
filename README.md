@@ -13,7 +13,89 @@ Full specification: [docs/PRD.md](docs/PRD.md) · [PDF](docs/SellFlow_BD_PRD.pdf
 <img width="1897" height="857" alt="Screenshot 2026-09-27 184222" src="https://github.com/user-attachments/assets/eeab616a-396c-4b0c-beb2-76f947cccfb7" />
 <img width="1912" height="852" alt="Screenshot 2026-09-27 184153" src="https://github.com/user-attachments/assets/47648e5e-036d-4fbe-905a-145f292a96a5" />
 
+---
 
+## About the project
+
+Thousands of Bangladeshi businesses sell entirely through Facebook and Instagram. Orders arrive as
+Messenger chats, comments and phone calls; almost everything ships cash on delivery through a
+third-party courier. There is no storefront, no checkout, and no system of record — so the seller
+tracks orders in a notebook or a spreadsheet and finds out months later that the business is not
+actually profitable.
+
+SellFlow BD is a multi-tenant SaaS platform that turns that chatter into a controlled
+order-to-cash pipeline. One seller signs up, creates a store, invites staff, and runs the entire
+operation — order entry, confirmation, inventory, courier booking, delivery tracking, COD
+reconciliation, returns and profit — from a single dashboard.
+
+### The problems it solves
+
+Cash on delivery is the single fact that makes this domain hard. The seller ships goods *before*
+being paid, which creates every requirement below.
+
+| Problem | How SellFlow handles it |
+|---|---|
+| Orders scattered across DMs, comments and calls | One order book with search, filters and a full status timeline for every order |
+| Fake and unconfirmed orders waste delivery money | Phone confirmation with logged call outcomes; stock is only committed once an order is confirmed |
+| The same customer orders twice on two channels | Duplicate detection warns on a recent open order with overlapping products, with an explicit override |
+| Repeat offenders who refuse delivery | Automatic customer risk scoring from delivery and return history, plus a blacklist |
+| Overselling stock that is already promised | Separate `on_hand` and `reserved` counts, so availability is always truthful |
+| Courier money arrives in a bulk spreadsheet | Upload the statement, match it against shipments, review the preview, then commit — shortfalls are surfaced as a number |
+| Returns quietly destroy the margin | Returns capture forward delivery cost, return charge and written-off stock, and feed straight into profit |
+| Revenue looks healthy but profit is unknown | Net profit after COGS, delivery cost, return loss and operating expenses |
+
+### How it works
+
+The day-to-day flow through the system:
+
+1. **Order intake.** A staff member types the customer's phone number; a known buyer auto-fills
+   with their address and risk badge. Items, discount and advance are entered, totals compute live,
+   and the order is created as `pending`. Customers can also submit orders themselves through a
+   public store form.
+2. **Confirmation.** The seller calls the customer and logs the outcome. On confirmation the order
+   moves to `confirmed` and stock is **reserved** — not yet decremented, because the goods are
+   still on the shelf.
+3. **Courier booking.** The order is booked with a courier through its API, or by pasting a
+   consignment ID if the courier has no API or is unreachable. The order moves to `shipped`, the
+   reservation is released and `on_hand` drops.
+4. **Delivery tracking.** Courier webhooks and a scheduled poll bring status updates in. Each
+   courier's vocabulary is mapped to the internal status set, and legal transitions are enforced —
+   an unexpected status is recorded in history without corrupting the order.
+5. **Money in.** On delivery the COD amount becomes collectable. When the courier's settlement
+   statement arrives, it is uploaded, matched against shipments, reviewed and committed — writing
+   real payments and the courier's actual deducted charge.
+6. **Returns.** A refused or failed delivery opens a return, which is received, inspected, and
+   resolved per item: sellable stock goes back to inventory, damaged stock is written off at cost.
+7. **Profit.** Analytics report net profit after cost of goods, delivery cost, return loss and
+   expenses — with breakdowns by product, courier, district and staff member.
+
+### How it is built
+
+The backend is a Django REST API organised into fourteen domain apps, each following the same
+shape: `models.py` for structure, `services.py` for business logic, and thin views that only
+handle HTTP. Business rules live in the services layer, so the same `create_order()` runs for the
+dashboard, the public order form and the API alike.
+
+Three pieces carry most of the engineering weight:
+
+- **Tenant isolation** is enforced in three layers — a base manager that returns nothing when no
+  store is resolved, a mixin that resolves the tenant from the user's own memberships, and a view
+  mixin that scopes every query and injects the store on writes. Cross-tenant access returns 404,
+  never 403.
+- **The order state machine** declares legal transitions as data and attaches stock side effects to
+  them, all inside a transaction with a row lock and an immutable audit trail.
+- **Inventory** is an append-only ledger. Every movement is recorded with its resulting balances,
+  and concurrent reservations are serialised with `select_for_update()` so the last unit in stock
+  can never be sold twice.
+
+Access is capability-based: five roles (owner, manager, order staff, delivery staff, accountant)
+map to named capabilities, which the API checks on every request and the UI uses to hide what a
+user cannot do.
+
+Sections [Multi-tenancy](#multi-tenancy), [API](#api), [Profit](#profit) and
+[COD reconciliation](#cod-reconciliation) below go into the detail.
+
+---
 
 ## Status
 
